@@ -1,0 +1,4 @@
+OctoprintApi	KEYWORD1
+sendGetToOctoprint	KEYWORD2
+getPrinterStatistics	KEYWORD2
+getOctoprintVersion     KEYWORD2
