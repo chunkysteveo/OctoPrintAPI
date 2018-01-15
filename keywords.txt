@@ -1,4 +1,25 @@
+#######################################
+# Syntax Coloring Map For OctoPrintAPI
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
 OctoprintApi	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
 sendGetToOctoprint	KEYWORD2
 getPrinterStatistics	KEYWORD2
-getOctoprintVersion     KEYWORD2
+getOctoprintVersion	KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+#######################################
+# Constants (LITERAL1)
+#######################################
