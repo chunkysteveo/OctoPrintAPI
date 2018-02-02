@@ -14,18 +14,18 @@
  *******************************************************************/
 
 
-#include <OctoPrintAPI.h> //This is where the magic happens...
+#include <OctoPrintAPI.h> //This is where the magic happens... shazam!
 
 #include <ESP8266WiFi.h>  
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
  
-const char* ssid = "ENTER_YOUR_WIFI_SSID";
-const char* password = "ENTER_YOUR_WIFI_PASSWORD";
+const char* ssid = "SSID";          // your network SSID (name)
+const char* password = "PASSWORD";  // your network password
 
-const String octoprint_host = "ENTER_YOUR_SERVER_IP_OR_HOSTNAME_E.G._192.168.1.2_ETC";
+const String octoprint_host = "IP_ADDRESS";  //Your internal IP address of your OctoPrint server, or your extenral hostname/IP if you are external
 const int octoprint_httpPort = 80;  //If you are connecting through a router this will work, but you need a random port forwarded to the OctoPrint server from your router. Enter that port here if you are external
-String octoprint_apikey = "SEE_ABOVE_GET_YOUR_API_KEY";
+String octoprint_apikey = "API_KEY"; //See top of file or GIT Readme about getting API key
 
 String printerOperational;
 String printerPaused;
@@ -37,11 +37,9 @@ String printerTarget;
 String payload;
 
 
-//WiFiClient client;
-//HTTPClient http;
 OctoprintApi api(octoprint_host, octoprint_httpPort, octoprint_apikey);
 
-unsigned long api_mtbs = 60000; //mean time between api requests
+unsigned long api_mtbs = 60000; //mean time between api requests (60 seconds)
 unsigned long api_lasttime = 0;   //last time api request has been done
 
 void setup () { 
@@ -75,8 +73,7 @@ void setup () {
 
 void loop() {
 
-  if (millis() - api_lasttime > api_mtbs || api_lasttime==0) {
-  
+  if (millis() - api_lasttime > api_mtbs || api_lasttime==0) {  //Check if time has expired to go check OctoPrint
     if (WiFi.status() == WL_CONNECTED) { //Check WiFi connection status     
       if(api.getOctoprintVersion()){
         Serial.println("---------Version---------");
@@ -88,26 +85,26 @@ void loop() {
       }
       Serial.println();
       if(api.getPrinterStatistics()){
-            Serial.println("---------Stats---------");
-            Serial.print("Printer Current State: ");
-            Serial.println(api.printerStats.printerState);
-             Serial.print("Printer State - closedOrError:  ");
-            Serial.println(api.printerStats.printerStateclosedOrError);
-             Serial.print("Printer State - error:  ");
-            Serial.println(api.printerStats.printerStateerror);
-             Serial.print("Printer State - operational:  ");
-            Serial.println(api.printerStats.printerStateoperational);
-             Serial.print("Printer State - paused:  ");
-            Serial.println(api.printerStats.printerStatepaused);
-            Serial.print("Printer State - printing:  ");
-            Serial.println(api.printerStats.printerStatePrinting);
-             Serial.print("Printer State - ready:  ");
-            Serial.println(api.printerStats.printerStateready);
-             Serial.print("Printer State - sdReady:  ");
-            Serial.println(api.printerStats.printerStatesdReady);
-            Serial.println("------------------------");              
-        }
+        Serial.println("---------Stats---------");
+        Serial.print("Printer Current State: ");
+        Serial.println(api.printerStats.printerState);
+        Serial.print("Printer State - closedOrError:  ");
+        Serial.println(api.printerStats.printerStateclosedOrError);
+        Serial.print("Printer State - error:  ");
+        Serial.println(api.printerStats.printerStateerror);
+        Serial.print("Printer State - operational:  ");
+        Serial.println(api.printerStats.printerStateoperational);
+        Serial.print("Printer State - paused:  ");
+        Serial.println(api.printerStats.printerStatepaused);
+        Serial.print("Printer State - printing:  ");
+        Serial.println(api.printerStats.printerStatePrinting);
+        Serial.print("Printer State - ready:  ");
+        Serial.println(api.printerStats.printerStateready);
+        Serial.print("Printer State - sdReady:  ");
+        Serial.println(api.printerStats.printerStatesdReady);
+        Serial.println("------------------------");              
+      }
     }
-    api_lasttime = millis();
+    api_lasttime = millis();  //Set api_lasttime to current milliseconds run
   }
 }
