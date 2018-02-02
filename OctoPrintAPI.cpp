@@ -131,8 +131,8 @@ bool OctoprintApi::getOctoprintVersion(){
   return false;
 }
 
-bool OctoprintApi::getOctoprintJob(){
-  Serial.println("OctoprintApi::getOctoprintJob() CALLED");
+bool OctoprintApi::getPrintJob(){
+  // Serial.println("OctoprintApi::getPrintJob() CALLED");
   String command="/api/job";
 //  Serial.print("command: ");
 //  Serial.println(command);
@@ -140,14 +140,35 @@ bool OctoprintApi::getOctoprintJob(){
   DynamicJsonBuffer jsonBuffer;
   JsonObject& root = jsonBuffer.parseObject(response);
   if(root.success()) {
-    if (root.containsKey("progress")) {
-      String octoprintCompletion = root["progress"]["completion"];
-      String octoprintPrintTime = root["progress"]["printTime"];
+    String printerState = root["state"];
+    printJob.printerState = printerState;   
+    
+    if (root.containsKey("job")) {
+      long estimatedPrintTime  = root["job"]["estimatedPrintTime"];
+      printJob.estimatedPrintTime = estimatedPrintTime;
+
+      long jobFileDate = root["job"]["file"]["date"];
+      String jobFileName = root["job"]["file"]["name"] | "";
+      String jobFileOrigin = root["job"]["file"]["origin"] | "";
+      long jobFileSize = root["job"]["file"]["size"];
       
-      octoprintJob.octoprintCompletion = octoprintCompletion;
-      octoprintJob.octoprintPrintTime = octoprintPrintTime;
-      return true;
+      printJob.jobFileDate = jobFileDate;
+      printJob.jobFileName = jobFileName;
+      printJob.jobFileOrigin = jobFileOrigin;
+      printJob.jobFileSize = jobFileSize;
     }
+    if (root.containsKey("progress")) {
+      float progressCompletion = root["progress"]["completion"] | 0.0;//isnan(root["progress"]["completion"]) ? 0.0 : root["progress"]["completion"];
+      long progressFilepos = root["progress"]["filepos"];
+      long progressPrintTime = root["progress"]["printTime"];
+      long progressPrintTimeLeft = root["progress"]["printTimeLeft"];
+      
+      printJob.progressCompletion = progressCompletion;
+      printJob.progressFilepos = progressFilepos;
+      printJob.progressPrintTime = progressPrintTime;
+      printJob.progressPrintTimeLeft = progressPrintTimeLeft;
+    }
+    return true;
   }
   return false;
 }
@@ -171,7 +192,7 @@ String OctoprintApi::getOctoprintEndpointResults(String command) {
   http.setUserAgent(USER_AGENT);
   
       int httpCode = http.GET();       
-      Serial.println(httpCode);
+      // Serial.println(httpCode);
 
         // httpCode will be negative on error
   if(httpCode > 0) {

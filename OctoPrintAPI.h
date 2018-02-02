@@ -34,9 +34,20 @@ struct octoprintVersion{
   String octoprintServer;
 };
 
-struct octoprintJobCall{
-  String octoprintCompletion;
-  String octoprintPrintTime;
+struct printJobCall{
+
+  String printerState;
+  long estimatedPrintTime;
+
+  long jobFileDate;
+  String jobFileName;
+  String jobFileOrigin;
+  long jobFileSize;
+  
+  float progressCompletion;
+  long progressFilepos;
+  long progressPrintTime;
+  long progressPrintTimeLeft;
 };
 
 class OctoprintApi
@@ -49,8 +60,8 @@ class OctoprintApi
     bool getOctoprintVersion();
     printerStatistics printerStats;
     octoprintVersion octoprintVer;
-    bool getOctoprintJob();
-    octoprintJobCall octoprintJob;
+    bool getPrintJob();
+    printJobCall printJob;
 
   private:
     String _apiKey;
