@@ -15,6 +15,7 @@ OctoprintApi	KEYWORD1
 sendGetToOctoprint	KEYWORD2
 getPrinterStatistics	KEYWORD2
 getOctoprintVersion	KEYWORD2
+getPrintJob KEYWORD2
 
 #######################################
 # Instances (KEYWORD2)
