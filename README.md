@@ -58,8 +58,13 @@ Include OctoPrint API in your project:
 
 
 ##Examples
+
 ###HelloWorldSerial
 This is the first sketch to try out. Enter your WiFi credentials, your OctoPrint network info, API key, compile and upload. Open the serial monitor and you should start to see printer information coming back.
+
+###GetPrintJObInfo
+Uses the getPrintJob() function of the class to get the current print job and returns most of the useful API variables. Gives a "real world" example of using the variables to print more human readable info.
+
 
 ## Acknowledgments
 
@@ -76,17 +81,23 @@ See the [LICENSE.md](LICENSE.md) file for details
 
 
 ## Release History
-
+* 1.0.4
+    * It's being used! User feedback to include the job process endpoint as a priority, thanks Miles Nash for the prompt that it's in use, and you like it!
+* 1.0.3
+    * Correction of keyword file for library, and property file version not matching.
+* 1.0.2
+    * Correction to library.properties file and caps of OctoPrint
 * 1.0.1
     * Tidying up Github readme, lots to learn.
 * 1.0.0
     * First release, just getting it out there.
 
 ## Requests / Future To Do List
-* Look into HTTPS OctoPrint installations and use WiFiSecure (maybe?)
-* POST calls to send data to the print server
-* Add more example scripts
+* Look into HTTPS OctoPrint installations and use WiFiSecure (maybe?).
+* POST calls to send data to the print server.
+* Add more example scripts.
 * Create the OLED screen copy to replicate the ramps full graphic smart controller (or the 20x4 one at least!).
+* Add my Neopixel progress bar dongle thingy!
 
 ## Meta
 
