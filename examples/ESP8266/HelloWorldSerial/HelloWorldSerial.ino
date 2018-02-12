@@ -17,11 +17,12 @@
 #include <OctoPrintAPI.h> //This is where the magic happens... shazam!
 
 #include <ESP8266WiFi.h>
-#include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
 
 const char* ssid = "SSID";          // your network SSID (name)
 const char* password = "PASSWORD";  // your network password
+
+WiFiClient client;
 
 const String octoprint_host = "IP_ADDRESS";  //Your internal IP address of your OctoPrint server, or your extenral hostname/IP if you are external
 IPAddress ip(192, 168, 1, 5);
