@@ -10,11 +10,20 @@
 #include "Arduino.h"
 #include "OctoprintApi.h"
 
-OctoprintApi::OctoprintApi(Client& client, IPAddress octoPrintHost, int octoPrintPort, String apiKey)  {
+OctoprintApi::OctoprintApi(Client& client, IPAddress octoPrintIp, int octoPrintPort, String apiKey)  {
   _client = &client;
   _apiKey = apiKey;
-  _octoPrintHost = octoPrintHost;
+  _octoPrintIp = octoPrintIp;
   _octoPrintPort = octoPrintPort;
+  _usingIpAddress = true;
+}
+
+OctoprintApi::OctoprintApi(Client& client, char* octoPrintUrl, int octoPrintPort, String apiKey)  {
+  _client = &client;
+  _apiKey = apiKey;
+  _octoPrintUrl = octoPrintUrl;
+  _octoPrintPort = octoPrintPort;
+  _usingIpAddress = false;
 }
 
 String OctoprintApi::sendGetToOctoprint(String command) {
@@ -29,11 +38,24 @@ String OctoprintApi::sendGetToOctoprint(String command) {
   unsigned long now;
   bool avail;
 
-  if (_client->connect(_octoPrintHost, _octoPrintPort)) {
+  bool connected;
+
+  if(_usingIpAddress) {
+    connected = _client->connect(_octoPrintIp, _octoPrintPort);
+  } else {
+    connected = _client->connect(_octoPrintUrl, _octoPrintPort);
+  }
+
+  if (connected) {
     if (_debug) Serial.println(".... connected to server");
 
     _client->println("GET " + command + " HTTP/1.1");
-    _client->print("Host: "); _client->println(_octoPrintHost);
+    _client->print("Host: ");
+    if(_usingIpAddress) {
+      _client->println(_octoPrintIp);
+    } else {
+      _client->println(_octoPrintUrl);
+    }
     _client->print("X-Api-Key: "); _client->println(_apiKey);
     _client->println("User-Agent: arduino/1.0");
     _client->println();

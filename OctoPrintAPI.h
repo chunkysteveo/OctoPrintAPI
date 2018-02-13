@@ -52,7 +52,8 @@ struct printJobCall{
 class OctoprintApi
 {
   public:
-    OctoprintApi (Client &client, IPAddress octoPrintHost, int octoPrintPort, String apiKey);
+    OctoprintApi (Client &client, IPAddress octoPrintIp, int octoPrintPort, String apiKey);
+    OctoprintApi (Client &client, char* octoPrintUrl, int octoPrintPort, String apiKey);
     String sendGetToOctoprint(String command);
     String getOctoprintEndpointResults(String command);
     bool getPrinterStatistics();
@@ -66,7 +67,9 @@ class OctoprintApi
   private:
     Client *_client;
     String _apiKey;
-    IPAddress _octoPrintHost;
+    IPAddress _octoPrintIp;
+    bool _usingIpAddress;
+    char* _octoPrintUrl;
     int _octoPrintPort;
     const int maxMessageLength = 1000;
     void closeClient();

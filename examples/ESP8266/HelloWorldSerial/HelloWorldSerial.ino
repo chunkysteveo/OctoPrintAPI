@@ -24,8 +24,11 @@ const char* password = "PASSWORD";  // your network password
 
 WiFiClient client;
 
-const String octoprint_host = "IP_ADDRESS";  //Your internal IP address of your OctoPrint server, or your extenral hostname/IP if you are external
-IPAddress ip(192, 168, 1, 5);
+
+// You only need to set one of the of follwowing:
+IPAddress ip(192, 168, 1, 5); // Your IP address of your OctoPrint server (inernal or external)
+// const char* octoprint_host = "octoprint.example.com";  // Or your hostname
+
 const int octoprint_httpPort = 80;  //If you are connecting through a router this will work, but you need a random port forwarded to the OctoPrint server from your router. Enter that port here if you are external
 String octoprint_apikey = "API_KEY"; //See top of file or GIT Readme about getting API key
 
@@ -38,8 +41,9 @@ String printerHotend;
 String printerTarget;
 String payload;
 
-
+// Use one of the following
 OctoprintApi api(client, ip, octoprint_httpPort, octoprint_apikey);
+// OctoprintApi api(client, octoprint_host, octoprint_httpPort, octoprint_apikey);
 
 unsigned long api_mtbs = 60000; //mean time between api requests (60 seconds)
 unsigned long api_lasttime = 0;   //last time api request has been done
