@@ -1,7 +1,7 @@
-/* ___       _        ____       _       _      _    ____ ___ 
+/* ___       _        ____       _       _      _    ____ ___
   / _ \  ___| |_ ___ |  _ \ _ __(_)_ __ | |_   / \  |  _ \_ _|
- | | | |/ __| __/ _ \| |_) | '__| | '_ \| __| / _ \ | |_) | | 
- | |_| | (__| || (_) |  __/| |  | | | | | |_ / ___ \|  __/| | 
+ | | | |/ __| __/ _ \| |_) | '__| | '_ \| __| / _ \ | |_) | |
+ | |_| | (__| || (_) |  __/| |  | | | | | |_ / ___ \|  __/| |
   \___/ \___|\__\___/|_|   |_|  |_|_| |_|\__/_/   \_\_|  |___|
 .......By Stephen Ludgate https://www.chunkymedia.co.uk.......
 
@@ -10,62 +10,98 @@
 #include "Arduino.h"
 #include "OctoprintApi.h"
 
-OctoprintApi::OctoprintApi(String octoPrintHost, int octoPrintPort, String apiKey)  {
+OctoprintApi::OctoprintApi(Client& client, IPAddress octoPrintIp, int octoPrintPort, String apiKey)  {
+  _client = &client;
   _apiKey = apiKey;
-  _octoPrintHost = octoPrintHost;
+  _octoPrintIp = octoPrintIp;
   _octoPrintPort = octoPrintPort;
+  _usingIpAddress = true;
+}
+
+OctoprintApi::OctoprintApi(Client& client, char* octoPrintUrl, int octoPrintPort, String apiKey)  {
+  _client = &client;
+  _apiKey = apiKey;
+  _octoPrintUrl = octoPrintUrl;
+  _octoPrintPort = octoPrintPort;
+  _usingIpAddress = false;
 }
 
 String OctoprintApi::sendGetToOctoprint(String command) {
 //  Serial.println("OctoprintApi::sendGetToOctoprint() CALLED");
+  String statusCode="";
   String headers="";
   String body="";
-  String payload="";
+  bool finishedStatusCode = false;
   bool finishedHeaders = false;
   bool currentLineIsBlank = true;
+  int ch_count = 0;
   unsigned long now;
   bool avail;
-  
-  HTTPClient http;
 
-  http.begin("http://" + String(_octoPrintHost) + ":" + String(_octoPrintPort) + command);
-//  http.addHeader("Content-Type", "application/json");  
-//  http.addHeader("GET " + command + " HTTP/1.1");
-//  http.addHeader("Host", OPAPI_HOST);
-  http.addHeader("X-Api-Key", _apiKey);
-  http.setUserAgent(USER_AGENT);
-  
-      int httpCode = http.GET();       
-//      Serial.println(httpCode);
+  bool connected;
 
-        // httpCode will be negative on error
-  if(httpCode > 0) {
-      // HTTP header has been send and Server response header has been handled
-       Serial.println("[OctoPrint] GET... code: " + String(httpCode) );
-
-      if(httpCode == HTTP_CODE_CONFLICT) {
-        payload = http.getString();
-        if (String(payload) == "Printer is not operational") {
-          payload = "Printer is not operational";
-          Serial.println(payload);
-        }
-      }
-
-      else if(httpCode == HTTP_CODE_OK) {
-        payload = http.getString();
-
-        
-      }
-      else {
-        payload = http.getString();
-        Serial.println( "[OctoPrint] HTTP_CODE_" + String(httpCode) + " : " + String(payload) );
-      }
+  if(_usingIpAddress) {
+    connected = _client->connect(_octoPrintIp, _octoPrintPort);
   } else {
-      Serial.println("[OctoPrint] GET... failed, error: " + String(http.errorToString(httpCode).c_str()) );
+    connected = _client->connect(_octoPrintUrl, _octoPrintPort);
   }
-  http.end();
 
-  return payload;
+  if (connected) {
+    if (_debug) Serial.println(".... connected to server");
+
+    _client->println("GET " + command + " HTTP/1.1");
+    _client->print("Host: ");
+    if(_usingIpAddress) {
+      _client->println(_octoPrintIp);
+    } else {
+      _client->println(_octoPrintUrl);
+    }
+    _client->print("X-Api-Key: "); _client->println(_apiKey);
+    _client->println("User-Agent: arduino/1.0");
+    _client->println();
+
+    now = millis();
+    while (millis() - now < 3000) {
+      while (_client->available()) {
+        char c = _client->read();
+
+        if (_debug) Serial.print(c);
+
+        if(!finishedStatusCode){
+          if(c == '\n'){
+            finishedStatusCode = true;
+          } else {
+            statusCode = statusCode + c;
+          }
+        }
+
+        if(!finishedHeaders){
+					if (currentLineIsBlank && c == '\n') {
+						finishedHeaders = true;
+					}
+					else{
+						headers = headers + c;
+
+					}
+				} else {
+					if (ch_count < maxMessageLength)  {
+						body=body+c;
+						ch_count++;
+					}
+				}
+
+				if (c == '\n') {
+					currentLineIsBlank = true;
+				}else if (c != '\r') {
+					currentLineIsBlank = false;
+				}
+      }
+    }
+  }
+
+  closeClient();
+  int httpCode = extractHttpCode(statusCode);
+  return body;
 }
 
 bool OctoprintApi::getPrinterStatistics(){
@@ -86,7 +122,7 @@ bool OctoprintApi::getPrinterStatistics(){
       bool printerStatePrinting = root["state"]["flags"]["printing"];
       bool printerStateready = root["state"]["flags"]["ready"];
       bool printerStatesdReady = root["state"]["flags"]["sdReady"];
-      
+
       printerStats.printerState = printerState;
       printerStats.printerStateclosedOrError = printerStateclosedOrError;
       printerStats.printerStateerror = printerStateerror;
@@ -95,7 +131,7 @@ bool OctoprintApi::getPrinterStatistics(){
       printerStats.printerStatePrinting = printerStatePrinting;
       printerStats.printerStateready = printerStateready;
       printerStats.printerStatesdReady = printerStatesdReady;
-     
+
       return true;
     }
   }
@@ -122,7 +158,7 @@ bool OctoprintApi::getOctoprintVersion(){
     if (root.containsKey("api")) {
       String octoprintApi = root["api"];
       String octoprintServer = root["server"];
-      
+
       octoprintVer.octoprintApi = octoprintApi;
       octoprintVer.octoprintServer = octoprintServer;
       return true;
@@ -141,8 +177,8 @@ bool OctoprintApi::getPrintJob(){
   JsonObject& root = jsonBuffer.parseObject(response);
   if(root.success()) {
     String printerState = root["state"];
-    printJob.printerState = printerState;   
-    
+    printJob.printerState = printerState;
+
     if (root.containsKey("job")) {
       long estimatedPrintTime  = root["job"]["estimatedPrintTime"];
       printJob.estimatedPrintTime = estimatedPrintTime;
@@ -151,7 +187,7 @@ bool OctoprintApi::getPrintJob(){
       String jobFileName = root["job"]["file"]["name"] | "";
       String jobFileOrigin = root["job"]["file"]["origin"] | "";
       long jobFileSize = root["job"]["file"]["size"];
-      
+
       printJob.jobFileDate = jobFileDate;
       printJob.jobFileName = jobFileName;
       printJob.jobFileOrigin = jobFileOrigin;
@@ -162,7 +198,7 @@ bool OctoprintApi::getPrintJob(){
       long progressFilepos = root["progress"]["filepos"];
       long progressPrintTime = root["progress"]["printTime"];
       long progressPrintTimeLeft = root["progress"]["printTimeLeft"];
-      
+
       printJob.progressCompletion = progressCompletion;
       printJob.progressFilepos = progressFilepos;
       printJob.progressPrintTime = progressPrintTime;
@@ -174,49 +210,27 @@ bool OctoprintApi::getPrintJob(){
 }
 
 String OctoprintApi::getOctoprintEndpointResults(String command) {
-  Serial.println("OctoprintApi::getOctoprintEndpointResults() CALLED");
-  String headers="";
-  String body="";
-  String payload="";
-  bool finishedHeaders = false;
-  bool currentLineIsBlank = true;
-  unsigned long now;
-  bool avail;
-  HTTPClient http;
-  http.begin("http://" + String(_octoPrintHost) + ":" + String(_octoPrintPort) + "/api/"+command); //HTTP
+  if (_debug) Serial.println("OctoprintApi::getOctoprintEndpointResults() CALLED");
 
-//  http.addHeader("Content-Type", "application/json");  
-//  http.addHeader("GET " + command + " HTTP/1.1");
-//  http.addHeader("Host", OPAPI_HOST);
-  http.addHeader("X-Api-Key", _apiKey);
-  http.setUserAgent(USER_AGENT);
-  
-      int httpCode = http.GET();       
-      // Serial.println(httpCode);
+  return sendGetToOctoprint("/api/" + command);
+}
 
-        // httpCode will be negative on error
-  if(httpCode > 0) {
-      // HTTP header has been send and Server response header has been handled
-       Serial.println("[OctoPrint] GET... code: " + String(httpCode) );
-
-      if(httpCode == HTTP_CODE_CONFLICT) {
-        payload = http.getString();
-        if (String(payload) == "Printer is not operational") {
-          payload = "Printer is not operational";
-          Serial.println(payload);
-        }
-      }
-
-      else if(httpCode == HTTP_CODE_OK) {
-        payload = http.getString();        
-      }
-      else {
-        payload = http.getString();
-        Serial.println( "[OctoPrint] HTTP_CODE_" + String(httpCode) + " : " + String(payload) );
-      }
-  } else {
-      Serial.println("[OctoPrint] GET... failed, error: " + String(http.errorToString(httpCode).c_str()) );
+void OctoprintApi::closeClient() {
+  if(_client->connected()){
+    _client->stop();
   }
-  http.end();
-  return payload;
+}
+
+int OctoprintApi::extractHttpCode(String statusCode) {
+  if(_debug){
+    Serial.print("Status Code: ");
+    Serial.println(statusCode);
+  }
+  int firstSpace = statusCode.indexOf(" ");
+  int lastSpace = statusCode.lastIndexOf(" ");
+  if(firstSpace > -1 && lastSpace > -1 && firstSpace != lastSpace){
+    statusCode.substring(firstSpace + 1, lastSpace);
+  } else {
+    return -1;
+  }
 }

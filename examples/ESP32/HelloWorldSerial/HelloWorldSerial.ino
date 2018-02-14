@@ -16,7 +16,7 @@
 
 #include <OctoPrintAPI.h> //This is where the magic happens... shazam!
 
-#include <ESP8266WiFi.h>
+#include <WiFi.h>
 #include <WiFiClient.h>
 
 const char* ssid = "SSID";          // your network SSID (name)
@@ -58,7 +58,7 @@ void setup () {
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
-  /* Explicitly set the ESP8266 to be a WiFi-client, otherwise, it by default,
+  /* Explicitly set the ESP32 to be a WiFi-client, otherwise, it by default,
      would try to act as both a client and an access-point and could cause
      network-issues with your other WiFi-devices on your WiFi-network. */
   WiFi.mode(WIFI_STA);
