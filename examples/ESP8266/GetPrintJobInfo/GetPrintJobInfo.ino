@@ -142,7 +142,7 @@ void loop() {
         Serial.println(estbuf);
 
         //Percentage of current print job complete
-        const float temp_percent = floor(api.printJob.progressCompletion*100)/10;
+        const float temp_percent = floor(api.printJob.progressCompletion*100)/100;
         Serial.print("Percentage complete:\t");
         Serial.print(temp_percent);
         Serial.println("%");
