@@ -21,17 +21,22 @@
 #include <TimeLib.h>
 
 #include <ESP8266WiFi.h>  
-#include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
  
 const char* ssid = "SSID";          // your network SSID (name)
 const char* password = "PASSWORD";  // your network password
+WiFiClient client; 
 
-const String octoprint_host = "IP_ADDRESS";  //Your internal IP address of your OctoPrint server, or your extenral hostname/IP if you are external
+// You only need to set one of the of follwowing:
+IPAddress ip(192, 168, 123, 123);                         // Your IP address of your OctoPrint server (inernal or external)
+// char* octoprint_host = "octoprint.example.com";  // Or your hostname. Comment out one or the other.
+
 const int octoprint_httpPort = 80;  //If you are connecting through a router this will work, but you need a random port forwarded to the OctoPrint server from your router. Enter that port here if you are external
-String octoprint_apikey = "API_KEY"; //See hello world sketch or GIT Readme about getting API key
+String octoprint_apikey = "API_KEY"; //See top of file or GIT Readme about getting API key
 
-OctoprintApi api(octoprint_host, octoprint_httpPort, octoprint_apikey);
+// Use one of the following:
+OctoprintApi api(client, ip, octoprint_httpPort, octoprint_apikey);               //If using IP address
+// OctoprintApi api(client, octoprint_host, octoprint_httpPort, octoprint_apikey);//If using hostname. Comment out one or the other.
 
 unsigned long api_mtbs = 60000; //mean time between api requests (60 seconds)
 unsigned long api_lasttime = 0;   //last time api request has been done

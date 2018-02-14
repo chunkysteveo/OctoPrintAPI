@@ -57,12 +57,12 @@ Include OctoPrint API in your project:
     #include <OctoPrintAPI.h>
 
 
-##Examples
+## Examples
 
-###HelloWorldSerial
+### HelloWorldSerial
 This is the first sketch to try out. Enter your WiFi credentials, your OctoPrint network info, API key, compile and upload. Open the serial monitor and you should start to see printer information coming back.
 
-###GetPrintJObInfo
+### GetPrintJObInfo
 Uses the getPrintJob() function of the class to get the current print job and returns most of the useful API variables. Gives a "real world" example of using the variables to print more human readable info.
 
 
@@ -81,6 +81,10 @@ See the [LICENSE.md](LICENSE.md) file for details
 
 
 ## Release History
+* 1.1.0
+    * It's a big update to this new library, but needed to allow it to work across all (probably) Arduino clients, and not just ESP8266. Big up to Brian Lough @witnessmenow for this update which swapped out HTTPClient to passing the (whatever) client TO the library instead. If you are using the library already - you will need to update your scripts to the new call staring call - Sorry!
+
+    Added ESP32 example too as proof of concept for that platform, thanks again to Brian for confirming this works.
 * 1.0.4
     * It's being used! User feedback to include the job process endpoint as a priority, thanks Miles Nash for the prompt that it's in use, and you like it!
 * 1.0.3
