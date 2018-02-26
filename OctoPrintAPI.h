@@ -68,7 +68,7 @@ class OctoprintApi
     String sendPostToOctoPrint(String command, char* postData);
     bool octoPrintConnectionDisconnect();
     bool octoPrintConnectionAutoConnect();
-    bool octoPrintConnectionDisconnectFakeAck();
+    bool octoPrintConnectionFakeAck();
     bool octoPrintPrintHeadHome();
 
     bool octoPrintGetPrinterSD();

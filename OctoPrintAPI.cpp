@@ -368,7 +368,7 @@ bool OctoprintApi::octoPrintConnectionDisconnect(){
   if(httpStatusCode == 204) return true;
   return false;
 }
-bool OctoprintApi::octoPrintConnectionDisconnectFakeAck(){
+bool OctoprintApi::octoPrintConnectionFakeAck(){
   String command = "/api/connection";
   char* postData = "{\"command\": \"fake_ack\"}";
   String response = sendPostToOctoPrint(command,postData);
