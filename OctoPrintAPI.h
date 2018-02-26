@@ -63,6 +63,20 @@ class OctoprintApi
     bool getPrintJob();
     printJobCall printJob;
     bool _debug = false;
+    int httpStatusCode = 0;
+    String httpErrorBody = "";
+    String sendPostToOctoPrint(String command, char* postData);
+    bool octoPrintConnectionDisconnect();
+    bool octoPrintConnectionAutoConnect();
+    bool octoPrintConnectionDisconnectFakeAck();
+    bool octoPrintPrintHeadHome();
+
+    bool octoPrintGetPrinterSD();
+    bool octoPrintPrinterSDInit();
+    bool octoPrintPrinterSDRefresh();
+    bool octoPrintPrinterSDRelease();
+
+    bool octoPrintPrinterCommand(char* gcodeCommand);
 
   private:
     Client *_client;
@@ -73,7 +87,7 @@ class OctoprintApi
     int _octoPrintPort;
     const int maxMessageLength = 1000;
     void closeClient();
-    int extractHttpCode(String statusCode);
+    int extractHttpCode(String statusCode,String body);
 };
 
 #endif
