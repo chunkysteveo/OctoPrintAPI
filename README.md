@@ -20,7 +20,7 @@ In your OctoPrint server settings, go to Api and enable it, and copy the API Key
 You need to enable this to access the API.
 ![](http://docs.octoprint.org/en/master/_images/settings-api-cors.png)
 
-###Test your connection
+### Test your connection
 You can check if your server is ready to accept request to the REST API by going to it in a browser on a PC/laptop and adding in the API key as a parameter. The URL would look something like this:
 
 ```
@@ -40,10 +40,10 @@ Your browser should give you something like this:
 
 Hooray, you can now talk to your OctoPrint server via it's API. And so can your Arduino.
 
-###Connecting if External, e.g. Over the Internet
+### Connecting if External, e.g. Over the Internet
 It works if you use your hostname and custom port that forwards... more instructions to follow :)
 
-##Installation
+## Installation
 *Going to be adding this to the official Arduino library, so you can search for it in the Arduino Library Manager.. when I get chance!*
 
 The downloaded code can be included as a new library into the IDE selecting the menu:
@@ -81,6 +81,8 @@ See the [LICENSE.md](LICENSE.md) file for details
 
 
 ## Release History
+* 1.1.1
+    * New functions and methods to use with the library, lots! You can now use POST to send commands to the printer and get it to do actions.
 * 1.1.0
     * It's a big update to this new library, but needed to allow it to work across all (probably) Arduino clients, and not just ESP8266. Big up to Brian Lough @witnessmenow for this update which swapped out HTTPClient to passing the (whatever) client TO the library instead. If you are using the library already - you will need to update your scripts to the new call staring call - Sorry!
 
