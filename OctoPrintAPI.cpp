@@ -397,6 +397,60 @@ bool OctoprintApi::octoPrintPrintHeadHome(){
   return false;
 }
 
+/***** PRINT BED *****/
+/** octoPrintGetPrinterBed()
+ * http://docs.octoprint.org/en/master/api/printer.html#retrieve-the-current-bed-state
+ * Retrieves the current temperature data (actual, target and offset) plus optionally a (limited) history (actual, target, timestamp) for the printer’s heated bed.
+ * It’s also possible to retrieve the temperature history by supplying the history query parameter set to true. 
+ * The amount of returned history data points can be limited using the limit query parameter.
+ * Returns a 200 OK with a Temperature Response in the body upon success.
+ * If no heated bed is configured for the currently selected printer profile, the resource will return an 409 Conflict.
+ * */ 
+bool OctoprintApi::octoPrintGetPrinterBed(){
+  String command = "/api/printer/bed?history=true&limit=2";
+  String response = sendGetToOctoprint(command);
+  DynamicJsonBuffer jsonBuffer;
+  JsonObject& root = jsonBuffer.parseObject(response);
+  Serial.println(response);
+  // "bed": {
+  //     "actual": 50.221,
+  //     "target": 70.0,
+  //     "offset": 5
+  //   },
+  //   "history": [
+  //     {
+  //       "time": 1395651928,
+  //       "bed": {
+  //         "actual": 50.221,
+  //         "target": 70.0
+  //       }
+  //     },
+  //     {
+  //       "time": 1395651926,
+  //       "bed": {
+  //         "actual": 49.1123,
+  //         "target": 70.0
+  //       }
+  //     }
+  //   ]
+  // }
+  if(root.success()) {
+    if (root.containsKey("bed")) {
+      float printerBedTempActual = root["bed"]["actual"];
+      float printerBedTempOffset = root["bed"]["offset"];
+      float printerBedTempTarget = root["bed"]["target"];
+      printerBed.printerBedTempActual = printerBedTempActual;
+      printerBed.printerBedTempOffset = printerBedTempOffset;
+      printerBed.printerBedTempTarget = printerBedTempTarget;      
+    }
+    if (root.containsKey("history")) {
+      
+    }
+    return true;
+  }
+  return false;
+}
+
 
 /***** SD FUNCTIONS *****/
 /*

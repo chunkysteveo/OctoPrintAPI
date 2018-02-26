@@ -49,6 +49,12 @@ struct printJobCall{
   long progressPrintTimeLeft;
 };
 
+struct printerBedCall{
+  float printerBedTempActual;  
+  float printerBedTempOffset;
+  float printerBedTempTarget;
+};
+
 class OctoprintApi
 {
   public:
@@ -76,6 +82,9 @@ class OctoprintApi
     bool octoPrintPrinterSDRefresh();
     bool octoPrintPrinterSDRelease();
 
+    bool octoPrintGetPrinterBed();
+    printerBedCall printerBed;
+    
     bool octoPrintPrinterCommand(char* gcodeCommand);
 
   private:
