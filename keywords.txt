@@ -16,6 +16,17 @@ sendGetToOctoprint	KEYWORD2
 getPrinterStatistics	KEYWORD2
 getOctoprintVersion	KEYWORD2
 getPrintJob KEYWORD2
+octoPrintGetPrinterBed  KEYWORD2
+sendPostToOctoPrint KEYWORD2
+octoPrintConnectionDisconnect   KEYWORD2
+octoPrintConnectionAutoConnect  KEYWORD2
+octoPrintConnectionFakeAck  KEYWORD2
+octoPrintPrintHeadHome  KEYWORD2
+octoPrintGetPrinterSD   KEYWORD2
+octoPrintPrinterSDInit  KEYWORD2
+octoPrintPrinterSDRefresh   KEYWORD2
+octoPrintPrinterSDRelease   KEYWORD2
+octoPrintPrinterCommand KEYWORD2
 
 #######################################
 # Instances (KEYWORD2)
