@@ -1,4 +1,5 @@
 # OctoPrint API
+<img align="left" style="padding-right:10px;" src="https://octoprint.org/assets/img/logo.png">
 Library for use with Arduino compatible micro controllers (web enabled) to access the Octoprint API on Raspberry Pi's running the [OctoPrint](https://octoprint.org/) 3D printer web server by the brilliant Gina Häußge, aka @foosel.
 
 ### What does it do?
