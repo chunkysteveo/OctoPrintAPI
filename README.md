@@ -9,6 +9,8 @@ Crucially I use this to keep track of current print job completion percentage. U
 
 This library will make it easy for you to get the information, I leave it up to you what and how you process this data in the most useful or pointless way!
 
+[![Buy me a beer!](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/chunkysteveo/3.5)
+
 ## Getting Started
 
 You will of course need a 3D printer which is running on OctoPrint, and an Arduino compatible microcontroller that can connect to the internet/your network - basically an ESP8266! Your OctoPi installation will need a valid API key, and you will also need to enable CORS.
