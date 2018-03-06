@@ -26,6 +26,9 @@ struct printerStatistics{
   bool printerStatePrinting;
   bool printerStateready;
   bool printerStatesdReady;
+  float printerBedTempActual;
+  float printerTool0TempActual;
+  float printerTool1TempActual;
 };
 
 struct octoprintVersion{
@@ -49,6 +52,14 @@ struct printJobCall{
   long progressPrintTimeLeft;
 };
 
+struct printerBedCall{
+  float printerBedTempActual;  
+  float printerBedTempOffset;
+  float printerBedTempTarget;
+  long printerBedTempHistoryTimestamp;
+  float printerBedTempHistoryActual;
+};
+
 class OctoprintApi
 {
   public:
@@ -63,6 +74,28 @@ class OctoprintApi
     bool getPrintJob();
     printJobCall printJob;
     bool _debug = false;
+    int httpStatusCode = 0;
+    String httpErrorBody = "";
+    String sendPostToOctoPrint(String command, char* postData);
+    bool octoPrintConnectionDisconnect();
+    bool octoPrintConnectionAutoConnect();
+    bool octoPrintConnectionFakeAck();
+    bool octoPrintPrintHeadHome();
+
+    bool octoPrintGetPrinterSD();
+    bool octoPrintPrinterSDInit();
+    bool octoPrintPrinterSDRefresh();
+    bool octoPrintPrinterSDRelease();
+
+    bool octoPrintGetPrinterBed();
+    printerBedCall printerBed;
+    
+    bool octoPrintJobStart();
+    bool octoPrintJobCancel();
+    bool octoPrintJobRestart();
+    bool octoPrintJobPauseResume();
+
+    bool octoPrintPrinterCommand(char* gcodeCommand);
 
   private:
     Client *_client;
@@ -73,7 +106,7 @@ class OctoprintApi
     int _octoPrintPort;
     const int maxMessageLength = 1000;
     void closeClient();
-    int extractHttpCode(String statusCode);
+    int extractHttpCode(String statusCode,String body);
 };
 
 #endif
