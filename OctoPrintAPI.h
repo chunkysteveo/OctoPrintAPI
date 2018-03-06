@@ -26,6 +26,9 @@ struct printerStatistics{
   bool printerStatePrinting;
   bool printerStateready;
   bool printerStatesdReady;
+  float printerBedTempActual;
+  float printerTool0TempActual;
+  float printerTool1TempActual;
 };
 
 struct octoprintVersion{
@@ -53,6 +56,8 @@ struct printerBedCall{
   float printerBedTempActual;  
   float printerBedTempOffset;
   float printerBedTempTarget;
+  long printerBedTempHistoryTimestamp;
+  float printerBedTempHistoryActual;
 };
 
 class OctoprintApi

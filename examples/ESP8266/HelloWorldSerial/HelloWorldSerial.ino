@@ -109,6 +109,15 @@ void loop() {
         Serial.print("Printer State - sdReady:  ");
         Serial.println(api.printerStats.printerStatesdReady);
         Serial.println("------------------------");
+        Serial.println();
+        Serial.println("------Termperatures-----");
+        Serial.print("Printer Temp - Tool0 (°C):  ");
+        Serial.println(api.printerStats.printerTool0TempActual);
+        Serial.print("Printer State - Tool1 (°C):  ");
+        Serial.println(api.printerStats.printerTool1TempActual);
+        Serial.print("Printer State - Bed (°C):  ");
+        Serial.println(api.printerStats.printerBedTempActual);
+        Serial.println("------------------------");
       }
     }
     api_lasttime = millis();  //Set api_lasttime to current milliseconds run

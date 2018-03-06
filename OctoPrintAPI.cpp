@@ -180,8 +180,17 @@ bool OctoprintApi::getPrinterStatistics(){
       printerStats.printerStateready = printerStateready;
       printerStats.printerStatesdReady = printerStatesdReady;
 
-      return true;
+      
     }
+    if(root.containsKey("temperature")){
+      float printerBedTempActual = root["temperature"]["bed"]["actual"];
+      float printerTool0TempActual = root["temperature"]["tool0"]["actual"];
+      float printerTool1TempActual = root["temperature"]["tool1"]["actual"];
+      printerStats.printerBedTempActual = printerBedTempActual;
+      printerStats.printerTool0TempActual = printerTool0TempActual;
+      printerStats.printerTool1TempActual = printerTool1TempActual;
+    }
+    return true;
   }
   else{
       if(response == "Printer is not operational"){

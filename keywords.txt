@@ -26,6 +26,10 @@ octoPrintGetPrinterSD   KEYWORD2
 octoPrintPrinterSDInit  KEYWORD2
 octoPrintPrinterSDRefresh   KEYWORD2
 octoPrintPrinterSDRelease   KEYWORD2
+octoPrintJobStart   KEYWORD2
+octoPrintJobCancel  KEYWORD2
+octoPrintJobRestart KEYWORD2
+octoPrintJobPauseResume KEYWORD2
 octoPrintPrinterCommand KEYWORD2
 
 #######################################
