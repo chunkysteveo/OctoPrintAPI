@@ -90,6 +90,11 @@ class OctoprintApi
     bool octoPrintGetPrinterBed();
     printerBedCall printerBed;
     
+    bool octoPrintJobStart();
+    bool octoPrintJobCancel();
+    bool octoPrintJobRestart();
+    bool octoPrintJobPauseResume();
+
     bool octoPrintPrinterCommand(char* gcodeCommand);
 
   private:

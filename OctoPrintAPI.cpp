@@ -202,6 +202,47 @@ bool OctoprintApi::getPrinterStatistics(){
   return false;
 }
 
+/***** PRINT JOB OPPERATIONS *****/
+/**
+ * http://docs.octoprint.org/en/devel/api/job.html#issue-a-job-command
+ * Job commands allow starting, pausing and cancelling print jobs. 
+ * Available commands are: start, cancel, restart, pause - Accepts one optional additional parameter action specifying
+ * which action to take - pause, resume, toggle
+ * If no print job is active (either paused or printing), a 409 Conflict will be returned.
+ * Upon success, a status code of 204 No Content and an empty body is returned.
+ * */
+bool OctoprintApi::octoPrintJobStart(){
+  String command = "/api/job";
+  char* postData = "{\"command\": \"start\"}";
+  String response = sendPostToOctoPrint(command,postData);
+  if(httpStatusCode == 204) return true;
+  return false;
+}
+
+bool OctoprintApi::octoPrintJobCancel(){
+  String command = "/api/job";
+  char* postData = "{\"command\": \"cancel\"}";
+  String response = sendPostToOctoPrint(command,postData);
+  if(httpStatusCode == 204) return true;
+  return false;
+}
+
+bool OctoprintApi::octoPrintJobRestart(){
+  String command = "/api/job";
+  char* postData = "{\"command\": \"restart\"}";
+  String response = sendPostToOctoPrint(command,postData);
+  if(httpStatusCode == 204) return true;
+  return false;
+}
+
+bool OctoprintApi::octoPrintJobPauseResume(){
+  String command = "/api/job";
+  char* postData = "{\"command\": \"pause\"}";
+  String response = sendPostToOctoPrint(command,postData);
+  if(httpStatusCode == 204) return true;
+  return false;
+}
+//bool OctoprintApi::octoPrintJobPause(String actionCommand){}
 
 /** getPrintJob
  * http://docs.octoprint.org/en/master/api/job.html#retrieve-information-about-the-current-job
@@ -420,29 +461,6 @@ bool OctoprintApi::octoPrintGetPrinterBed(){
   String response = sendGetToOctoprint(command);
   DynamicJsonBuffer jsonBuffer;
   JsonObject& root = jsonBuffer.parseObject(response);
-  Serial.println(response);
-  // "bed": {
-  //     "actual": 50.221,
-  //     "target": 70.0,
-  //     "offset": 5
-  //   },
-  //   "history": [
-  //     {
-  //       "time": 1395651928,
-  //       "bed": {
-  //         "actual": 50.221,
-  //         "target": 70.0
-  //       }
-  //     },
-  //     {
-  //       "time": 1395651926,
-  //       "bed": {
-  //         "actual": 49.1123,
-  //         "target": 70.0
-  //       }
-  //     }
-  //   ]
-  // }
   if(root.success()) {
     if (root.containsKey("bed")) {
       float printerBedTempActual = root["bed"]["actual"];
@@ -453,8 +471,12 @@ bool OctoprintApi::octoPrintGetPrinterBed(){
       printerBed.printerBedTempTarget = printerBedTempTarget;      
     }
     if (root.containsKey("history")) {
-      
-    }
+      JsonArray& history = root["history"];
+        long historyTime = history[0]["time"];
+        float historyPrinterBedTempActual = history[0]["bed"]["actual"];        
+        printerBed.printerBedTempHistoryTimestamp = historyTime;
+        printerBed.printerBedTempHistoryActual = historyPrinterBedTempActual;
+    }  
     return true;
   }
   return false;
