@@ -91,7 +91,7 @@ void loop() {
       }
       Serial.println();
       if(api.getPrinterStatistics()){
-        Serial.println("---------Stats---------");
+        Serial.println("---------States---------");
         Serial.print("Printer Current State: ");
         Serial.println(api.printerStats.printerState);
         Serial.print("Printer State - closedOrError:  ");
