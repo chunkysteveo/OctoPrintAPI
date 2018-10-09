@@ -8,7 +8,7 @@
 */
 
 #include "Arduino.h"
-#include "OctoprintApi.h"
+#include "OctoPrintAPI.h"
 
 /** OctoprintApi()
  * IP address version of the client connect function
