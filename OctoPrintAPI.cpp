@@ -254,6 +254,7 @@ String OctoprintApi::sendPostToOctoPrint(String command, char* postData) {
 
   if (http.begin(url)) {
     http.addHeader("X-Api-Key", _apiKey);
+    http.addHeader("Content-Type", "application/json");
     result = http.POST((uint8_t*)postData, strlen(postData));
     body = http.getString();
   }
