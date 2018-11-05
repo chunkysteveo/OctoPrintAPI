@@ -84,6 +84,7 @@ class OctoprintApi
     bool octoPrintConnectionAutoConnect();
     bool octoPrintConnectionFakeAck();
     bool octoPrintPrintHeadHome();
+    bool octoPrintPrintHeadRelativeJog(double x, double y, double z, double f);
 
     bool octoPrintGetPrinterSD();
     bool octoPrintPrinterSDInit();

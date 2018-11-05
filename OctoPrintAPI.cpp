@@ -461,6 +461,48 @@ bool OctoprintApi::octoPrintPrintHeadHome(){
   return false;
 }
 
+
+bool OctoprintApi::octoPrintPrintHeadRelativeJog(double x, double y, double z, double f) {
+  String command = "/api/printer/printhead";
+  //  {
+  // "command": "jog",
+  // "x": 10,
+  // "y": -5,
+  // "z": 0.02,
+  // "absolute": false,
+  // "speed": 30
+  // }
+  char postData[1024];
+  char tmp[128];
+  postData[0] = '\0';
+  
+  strcat(postData, "{\"command\": \"jog\"");
+  if (x != 0) {
+      snprintf(tmp, 128, ", \"x\": %f", x);
+      strcat(postData, tmp);
+  }
+  if (y != 0) {
+      snprintf(tmp, 128, ", \"y\": %f", y);
+      strcat(postData, tmp);
+  }
+  if (z != 0) {
+      snprintf(tmp, 128, ", \"z\": %f", z);
+      strcat(postData, tmp);
+  }
+  if (f != 0) {
+      snprintf(tmp, 128, ", \"speed\": %f", f);
+      strcat(postData, tmp);
+  }
+  strcat(postData, ", \"absolute\": false");
+  strcat(postData, " }");
+  Serial.println(postData);
+
+  String response = sendPostToOctoPrint(command,postData);
+  if(httpStatusCode == 204) return true;
+  return false;
+}
+
+
 /***** PRINT BED *****/
 /** octoPrintGetPrinterBed()
  * http://docs.octoprint.org/en/master/api/printer.html#retrieve-the-current-bed-state
