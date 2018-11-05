@@ -9,6 +9,7 @@
 
 #include "Arduino.h"
 #include "OctoPrintAPI.h"
+#include <ESP8266HTTPClient.h>
 
 /** OctoprintApi()
  * IP address version of the client connect function
@@ -39,98 +40,30 @@ OctoprintApi::OctoprintApi(Client& client, char* octoPrintUrl, int octoPrintPort
  * **/
 String OctoprintApi::sendGetToOctoprint(String command) {
   if (_debug) Serial.println("OctoprintApi::sendGetToOctoprint() CALLED");
-  String statusCode="";
-  String headers="";
-  String body="";
-  bool finishedStatusCode = false;
-  bool finishedHeaders = false;
-  bool currentLineIsBlank = true;
-  int ch_count = 0;
-  unsigned long now;
-  bool avail;
 
-  bool connected;
-
-  if(_usingIpAddress) {
-    connected = _client->connect(_octoPrintIp, _octoPrintPort);
+  HTTPClient http;
+  String url = "http://";
+  if (_usingIpAddress) {
+    url = url + _octoPrintIp.toString();
   } else {
-    connected = _client->connect(_octoPrintUrl, _octoPrintPort);
+    url = url + _octoPrintUrl;
   }
+  url = url + ":" + _octoPrintPort + command;
 
-  if (connected) {
-    if (_debug) Serial.println(".... connected to server");
+  int result = -1;
+  String body = "";
 
-    _client->println("GET " + command + " HTTP/1.1");
-    _client->print("Host: ");
-    if(_usingIpAddress) {
-      _client->println(_octoPrintIp);
-    } else {
-      _client->println(_octoPrintUrl);
-    }
-    _client->print("X-Api-Key: "); _client->println(_apiKey);
-    _client->println("User-Agent: arduino/1.0");
-    _client->println("Connection: close");
-    _client->println();
-
-    now = millis();
-    while (millis() - now < 3000) {
-      while (_client->available()) {
-        char c = _client->read();
-
-        if (_debug) Serial.print(c);
-
-        if(!finishedStatusCode){
-          if(c == '\n'){
-            finishedStatusCode = true;
-          } else {
-            statusCode = statusCode + c;
-          }
-        }
-
-        if(!finishedHeaders){
-					if (currentLineIsBlank && c == '\n') {
-						finishedHeaders = true;
-					}
-					else{
-						headers = headers + c;
-
-					}
-				} else {
-					if (ch_count < maxMessageLength)  {
-						body=body+c;
-						ch_count++;
-					}
-				}
-
-				if (c == '\n') {
-					currentLineIsBlank = true;
-				}else if (c != '\r') {
-					currentLineIsBlank = false;
-				}
-      }
-      if (!_client->connected()) {
-          break;
-      }
-    }
+  if (http.begin(url)) {
+    http.addHeader("X-Api-Key", _apiKey);
+    result = http.GET();
+    body = http.getString();
   }
-  else{
-    if (_debug){
-      Serial.println("connection failed");
-      Serial.println(connected);
-    }
-  }
+  http.end();
 
-  closeClient();
-
-  int httpCode = extractHttpCode(statusCode,body);
-  if (_debug){ 
-    Serial.print("\nhttpCode:");
-    Serial.println(httpCode);
-  }
-  httpStatusCode = httpCode;
-  
+  httpStatusCode = result;
   return body;
 }
+
 /** getOctoprintVersion()
  * http://docs.octoprint.org/en/master/api/version.html#version-information
  * Retrieve information regarding server and API version. Returns a JSON object with two keys, api containing the API version, server containing the server version.
@@ -306,100 +239,27 @@ String OctoprintApi::getOctoprintEndpointResults(String command) {
  * **/
 String OctoprintApi::sendPostToOctoPrint(String command, char* postData) {
   if (_debug) Serial.println("OctoprintApi::sendPostToOctoPrint() CALLED");
-  String statusCode="";
-  String headers="";
-  String body="";
-  bool finishedStatusCode = false;
-  bool finishedHeaders = false;
-  bool currentLineIsBlank = true;
-  int ch_count = 0;
-  unsigned long now;
-  bool avail;
 
-  bool connected;
-
-  if(_usingIpAddress) {
-    connected = _client->connect(_octoPrintIp, _octoPrintPort);
+  HTTPClient http;
+  String url = "http://";
+  if (_usingIpAddress) {
+    url = url + _octoPrintIp.toString();
   } else {
-    connected = _client->connect(_octoPrintUrl, _octoPrintPort);
+    url = url + _octoPrintUrl;
   }
+  url = url + ":" + _octoPrintPort + command;
 
-  if (connected) {
-    if (_debug) Serial.println(".... connected to server");
-    _client->println("POST " + command + " HTTP/1.1");
-    _client->print("Host: ");
-    if(_usingIpAddress) {
-      _client->println(_octoPrintIp);
-    } else {
-      _client->println(_octoPrintUrl);
-    }
-    _client->println("Content-Type: application/json");
-    _client->print("X-Api-Key: "); _client->println(_apiKey);
-    _client->println("User-Agent: arduino/1.0");
-    _client->println("Connection: close");
-    _client->print("Content-Length: ");
-    _client->println(strlen(postData));// number of bytes in the payload
-    _client->println();// important need an empty line here 
-    _client->println(postData);// the payload
+  int result = -1;
+  String body = "";
 
-
-    now = millis();
-    while (millis() - now < 3000) {
-      while (_client->available()) {
-        char c = _client->read();
-
-        if (_debug) Serial.print(c);
-
-        if(!finishedStatusCode){
-          if(c == '\n'){
-            finishedStatusCode = true;
-          } else {
-            statusCode = statusCode + c;
-          }
-        }
-
-        if(!finishedHeaders){
-					if (currentLineIsBlank && c == '\n') {
-						finishedHeaders = true;
-					}
-					else{
-						headers = headers + c;
-					}
-				} else {
-					if (ch_count < maxMessageLength)  {
-						body=body+c;
-						ch_count++;
-					}
-				}
-
-				if (c == '\n') {
-					currentLineIsBlank = true;
-				}else if (c != '\r') {
-					currentLineIsBlank = false;
-				}
-      }
-      if (!_client->connected()) {
-          break;
-      }
-    }
+  if (http.begin(url)) {
+    http.addHeader("X-Api-Key", _apiKey);
+    result = http.POST((uint8_t*)postData, strlen(postData));
+    body = http.getString();
   }
-  else{
-    if (_debug){
-      Serial.println("connection failed");
-      Serial.println(connected);
-    }
-  }
+  http.end();
 
-  closeClient();
-
-  int httpCode = extractHttpCode(statusCode,body);
-  if (_debug){ 
-    Serial.print("\nhttpCode:");
-    Serial.println(httpCode);
-  }
-  httpStatusCode = httpCode;
-  if(httpCode!= 200 or httpCode!= 204) httpErrorBody = body;
-  
+  httpStatusCode = result;
   return body;
 }
 
