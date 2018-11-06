@@ -502,6 +502,17 @@ bool OctoprintApi::octoPrintPrintHeadRelativeJog(double x, double y, double z, d
   return false;
 }
 
+bool OctoprintApi::octoPrintExtrude(double amount) {
+    String command = "/api/printer/tool";
+    char postData[256];
+    snprintf(postData, 256, "{ \"command\": \"extrude\", \"amount\": %f }", amount);
+    
+    String response = sendPostToOctoPrint(command,postData);
+    if(httpStatusCode == 204) return true;
+    return false;
+}
+
+
 
 /***** PRINT BED *****/
 /** octoPrintGetPrinterBed()
