@@ -86,6 +86,9 @@ class OctoprintApi
     bool octoPrintPrintHeadHome();
     bool octoPrintPrintHeadRelativeJog(double x, double y, double z, double f);
     bool octoPrintExtrude(double amount);
+    bool octoPrintSetBedTemperature(uint16_t t);
+    bool octoPrintSetTool0Temperature(uint16_t t);
+    bool octoPrintSetTool1Temperature(uint16_t t);
 
     bool octoPrintGetPrinterSD();
     bool octoPrintPrinterSDInit();

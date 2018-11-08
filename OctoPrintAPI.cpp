@@ -512,6 +512,38 @@ bool OctoprintApi::octoPrintExtrude(double amount) {
     return false;
 }
 
+bool OctoprintApi::octoPrintSetBedTemperature(uint16_t t) {
+    String command = "/api/printer/bed";
+    char postData[256];
+    snprintf(postData, 256, "{ \"command\": \"target\", \"target\": %d }", t);
+    
+    String response = sendPostToOctoPrint(command,postData);
+    if(httpStatusCode == 204) return true;
+    return false;
+}
+
+
+bool OctoprintApi::octoPrintSetTool0Temperature(uint16_t t){
+    String command = "/api/printer/tool";
+    char postData[256];
+    snprintf(postData, 256, "{ \"command\": \"target\", \"targets\": { \"tool0\": %d } }", t);
+    
+    String response = sendPostToOctoPrint(command,postData);
+    if(httpStatusCode == 204) return true;
+    return false;
+}
+
+bool OctoprintApi::octoPrintSetTool1Temperature(uint16_t t){
+    String command = "/api/printer/tool";
+    char postData[256];
+    snprintf(postData, 256, "{ \"command\": \"target\", \"targets\": { \"tool1\": %d } }", t);
+    
+    String response = sendPostToOctoPrint(command,postData);
+    if(httpStatusCode == 204) return true;
+    return false;
+}
+
+
 
 
 /***** PRINT BED *****/
