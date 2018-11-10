@@ -190,9 +190,15 @@ bool OctoprintApi::getPrinterStatistics(){
       float printerBedTempActual = root["temperature"]["bed"]["actual"];
       float printerTool0TempActual = root["temperature"]["tool0"]["actual"];
       float printerTool1TempActual = root["temperature"]["tool1"]["actual"];
+      float printerBedTempTarget = root["temperature"]["bed"]["target"];
+      float printerTool0TempTarget = root["temperature"]["tool0"]["target"];
+      float printerTool1TempTarget = root["temperature"]["tool1"]["target"];
       printerStats.printerBedTempActual = printerBedTempActual;
       printerStats.printerTool0TempActual = printerTool0TempActual;
       printerStats.printerTool1TempActual = printerTool1TempActual;
+      printerStats.printerBedTempTarget = printerBedTempTarget;
+      printerStats.printerTool0TempTarget = printerTool0TempTarget;
+      printerStats.printerTool1TempTarget = printerTool1TempTarget;
     }
     return true;
   }

@@ -29,6 +29,9 @@ struct printerStatistics{
   float printerBedTempActual;
   float printerTool0TempActual;
   float printerTool1TempActual;
+  float printerBedTempTarget;
+  float printerTool0TempTarget;
+  float printerTool1TempTarget;
 };
 
 struct octoprintVersion{
