@@ -26,9 +26,9 @@
 #include <FastLED.h>
 
 #define LED_PIN D4
-#define NUM_LEDS 110
-#define LED_BRIGHTNESS 150
-#define MILLI_AMPS 2400
+#define NUM_LEDS 110       // Number of LED's on your stripe
+#define LED_BRIGHTNESS 150 // set Brightness value
+#define MILLI_AMPS 2400    // Maximum current your power source can deliver in mA
 #define CONNECTION_COLOR 0xFF00FF
 CRGB leds[NUM_LEDS];
 
