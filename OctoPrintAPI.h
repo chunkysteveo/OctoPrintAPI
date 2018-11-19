@@ -102,6 +102,9 @@ class OctoprintApi
     bool octoPrintJobCancel();
     bool octoPrintJobRestart();
     bool octoPrintJobPauseResume();
+    bool octoPrintJobPause();
+    bool octoPrintJobResume();
+    bool octoPrintFileSelect(String& path);
 
     bool octoPrintPrinterCommand(char* gcodeCommand);
 
