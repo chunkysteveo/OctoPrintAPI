@@ -12,7 +12,7 @@
  *                                                                 
  *  OctoprintApi by Stephen Ludgate https://www.youtube.com/channel/UCVEEuAouZ6ua4oetLjjHAuw 
  * 
- *  Example written by A. Fichtner - https://github.com/anfichtn
+ *  Example based on original work written by A. Fichtner - https://github.com/anfichtn
  *******************************************************************/
  
 #include <OctoPrintAPI.h> //This is where the magic happens... shazam!
@@ -21,7 +21,7 @@
 
 #define FASTLED_ESP8266_RAW_PIN_ORDER
 #define FASTLED_INTERRUPT_RETRY_COUNT 0
-#include <FastLED.h>       // Uses FastLED Library to drive WS2812B 'Neopixel' LEDs
+#include <FastLED.h>                // Uses FastLED Library to drive WS2812B 'Neopixel' LEDs
 
 #define LED_PIN D4                  // The pin connected to Data In on the strip
 #define NUM_LEDS 110                // Number of LED's on your strip
