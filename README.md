@@ -9,7 +9,7 @@ Crucially I use this to keep track of current print job completion percentage. U
 
 This library will make it easy for you to get the information, I leave it up to you what and how you process this data in the most useful or pointless way!
 
-[![Buy me a beer!](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/chunkysteveo/3.5)
+[![Buy me a beer!](https://img.shields.io/badge/Buy_me_Beer!-PayPal-green.svg)](https://www.paypal.me/chunkysteveo/3.5)
 
 ## Getting Started
 
@@ -74,10 +74,14 @@ Uses the getPrintJob() function of the class to get the current print job and re
 * Hat tip to Brian Lough, aka @witnessmenow for is work on his Arduino API libraries which gave me the base to create my own. His [YouTube API](https://github.com/witnessmenow/arduino-youtube-api) is used in our office every day to keep score!
 * Gina Häußge (@foosel) for her amazing work on OctoPrint, which without her, none of this would be even possible.
 * Miles Nash for the first to use my library in a live Arduino project - [3D Printer Monitoring with Alexa and Arduino](https://www.hackster.io/Milesnash_/3d-printer-monitoring-with-alexa-and-arduino-024292)
+* [sidddy](https://github.com/sidddy) for some big improvements to the core request function and various updates which contributed to the 1.1.2 release.
+* [anfichtn](https://github.com/anfichtn) for the first contributed example (ESP8266/WS2812BProgress) and some endpoint function calls.
 
 ## Authors
 
 * **Stephen Ludgate** - *Initial work* - [chunkysteveo](https://github.com/chunkysteveo)
+* **Stephen Ludgate** - *Contributor* - [sidddy](https://github.com/sidddy)
+* **Stephen Ludgate** - *Contributor* - [anfichtn](https://github.com/anfichtn)
 
 ## License
 
@@ -85,6 +89,10 @@ See the [LICENSE.md](LICENSE.md) file for details
 
 
 ## Release History
+* 1.1.2
+    * Updates to how the core function calls the API, no more delay() function, and updates to correct anything in ESP8266 2.4.2 core - thanks [sidddy](https://github.com/sidddy)!
+    * Added additional endpoint calls, mainly target temperatures - thanks [anfichtn](https://github.com/anfichtn) and also set temps, extrude and a relative jog command - move that head! (Thanks again to [sidddy](https://github.com/sidddy))
+    * A new example (ESP8266/WS2812BProgress) which was initially a PR from [anfichtn](https://github.com/anfichtn). I have updated it a little to be less intrusive if left on all the time (i.e. it times out). Get a Neopixel style progress bar showing you your current print job progress.
 * 1.1.1
     * New functions and methods to use with the library, lots! You can now use POST to send commands to the printer and get it to do actions. Check out the Wiki for available functions.
 * 1.1.0

@@ -12,6 +12,7 @@ OctoprintApi	KEYWORD1
 # Methods and Functions (KEYWORD2)
 #######################################
 
+sendRequestToOctoprint	KEYWORD2
 sendGetToOctoprint	KEYWORD2
 getPrinterStatistics	KEYWORD2
 getOctoprintVersion	KEYWORD2
@@ -31,6 +32,9 @@ octoPrintJobCancel	KEYWORD2
 octoPrintJobRestart	KEYWORD2
 octoPrintJobPauseResume	KEYWORD2
 octoPrintPrinterCommand	KEYWORD2
+octoPrintJobPause	KEYWORD2
+octoPrintJobResume	KEYWORD2
+octoPrintFileSelect	KEYWORD2
 
 #######################################
 # Instances (KEYWORD2)
