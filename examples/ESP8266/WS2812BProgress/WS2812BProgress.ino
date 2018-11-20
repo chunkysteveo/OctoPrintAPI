@@ -16,8 +16,6 @@
  *******************************************************************/
  
 #include <OctoPrintAPI.h> //This is where the magic happens... shazam!
-#include <Time.h>         //We will need these two just to do some rough time math on the timestamps we get
-#include <TimeLib.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 
@@ -29,7 +27,7 @@
 #define NUM_LEDS 110       // Number of LED's on your strip
 #define LED_BRIGHTNESS 150 // set Brightness value
 #define MILLI_AMPS 2400    // Maximum current your power source can deliver in mA
-#define CONNECTION_COLOR 0xFF00FF
+#define CONNECTION_COLOR 0xFF00FF   // Purple WiFi connection status color
 CRGB leds[NUM_LEDS];
 
 const char* ssid = "SSID";          // your network SSID (name)
