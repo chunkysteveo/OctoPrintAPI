@@ -14,8 +14,8 @@
 #include <ArduinoJson.h>
 #include <Client.h>
 
-#define OPAPI_TIMEOUT 1500
-#define USER_AGENT "OctoPrintAPI/1.0 (Arduino)"
+#define OPAPI_TIMEOUT 3000
+#define USER_AGENT "OctoPrintAPI/1.1.2 (Arduino)"
 
 struct printerStatistics{
   String printerState;

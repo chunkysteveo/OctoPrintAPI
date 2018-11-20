@@ -69,6 +69,9 @@ OctoprintApi::OctoprintApi(Client& client, char* octoPrintUrl, int octoPrintPort
   if (connected) {
     if (_debug) Serial.println(".... connected to server");
 
+    char useragent[40];
+    sprintf(useragent,"User-Agent: %s",USER_AGENT);
+    
     _client->println(type + " " + command + " HTTP/1.1");
     _client->print("Host: ");
     if(_usingIpAddress) {
@@ -77,20 +80,20 @@ OctoprintApi::OctoprintApi(Client& client, char* octoPrintUrl, int octoPrintPort
       _client->println(_octoPrintUrl);
     }
     _client->print("X-Api-Key: "); _client->println(_apiKey);
-    _client->println("User-Agent: arduino/1.0");
+    _client->println(useragent);
     _client->println("Connection: keep-alive");
     if (data != NULL) {
     	_client->println("Content-Type: application/json");
     	_client->print("Content-Length: ");
-    	_client->println(strlen(data));// number of bytes in the payload
-    	_client->println();// important need an empty line here
-    	_client->println(data);// the payload
+    	_client->println(strlen(data));                   // number of bytes in the payload
+    	_client->println();                               // important need an empty line here
+    	_client->println(data);                           // the payload
     } else {
     	_client->println();
     }
 
     now = millis();
-    while (millis() - now < 3000) {
+    while (millis() - now < OPAPI_TIMEOUT) {
       while (_client->available()) {
         char c = _client->read();
 
