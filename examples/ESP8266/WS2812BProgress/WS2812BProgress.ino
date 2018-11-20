@@ -23,7 +23,7 @@
 
 #define FASTLED_ESP8266_RAW_PIN_ORDER
 #define FASTLED_INTERRUPT_RETRY_COUNT 0
-#include <FastLED.h>
+#include <FastLED.h>       // Uses FastLED Library to drive WS2812B 'Neopixel' LEDs
 
 #define LED_PIN D4
 #define NUM_LEDS 110       // Number of LED's on your strip
