@@ -34,11 +34,17 @@ OctoprintApi::OctoprintApi(Client& client, char* octoPrintUrl, int octoPrintPort
 }
 
 
-/** GET YOUR ASS TO OCTOPRINT... 
- * 
+/** GET YOUR ASS TO OCTOPRINT...
+ *
  * **/
-String OctoprintApi::sendGetToOctoprint(String command) {
-  if (_debug) Serial.println("OctoprintApi::sendGetToOctoprint() CALLED");
+ String OctoprintApi::sendRequestToOctoprint(String type, String command, char* data) {
+  if (_debug) Serial.println("OctoprintApi::sendRequestToOctoprint() CALLED");
+
+  if ((type != "GET") && (type != "POST")) {
+  	if (_debug) Serial.println("OctoprintApi::sendRequestToOctoprint() Only GET & POST are supported... exiting.");
+  	return "";
+  }
+
   String statusCode="";
   String headers="";
   String body="";
@@ -46,6 +52,9 @@ String OctoprintApi::sendGetToOctoprint(String command) {
   bool finishedHeaders = false;
   bool currentLineIsBlank = true;
   int ch_count = 0;
+  int headerCount = 0;
+  int headerLineStart = 0;
+  int bodySize = -1;
   unsigned long now;
   bool avail;
 
@@ -60,7 +69,7 @@ String OctoprintApi::sendGetToOctoprint(String command) {
   if (connected) {
     if (_debug) Serial.println(".... connected to server");
 
-    _client->println("GET " + command + " HTTP/1.1");
+    _client->println(type + " " + command + " HTTP/1.1");
     _client->print("Host: ");
     if(_usingIpAddress) {
       _client->println(_octoPrintIp);
@@ -69,8 +78,16 @@ String OctoprintApi::sendGetToOctoprint(String command) {
     }
     _client->print("X-Api-Key: "); _client->println(_apiKey);
     _client->println("User-Agent: arduino/1.0");
-    _client->println("Connection: close");
-    _client->println();
+    _client->println("Connection: keep-alive");
+    if (data != NULL) {
+    	_client->println("Content-Type: application/json");
+    	_client->print("Content-Length: ");
+    	_client->println(strlen(data));// number of bytes in the payload
+    	_client->println();// important need an empty line here
+    	_client->println(data);// the payload
+    } else {
+    	_client->println();
+    }
 
     now = millis();
     while (millis() - now < 3000) {
@@ -88,29 +105,39 @@ String OctoprintApi::sendGetToOctoprint(String command) {
         }
 
         if(!finishedHeaders){
-					if (currentLineIsBlank && c == '\n') {
-						finishedHeaders = true;
-					}
-					else{
-						headers = headers + c;
-
-					}
+			if (c == '\n') {
+				if (currentLineIsBlank) {
+					finishedHeaders = true;
 				} else {
-					if (ch_count < maxMessageLength)  {
-						body=body+c;
-						ch_count++;
+					if (headers.substring(headerLineStart).startsWith("Content-Length: ")) {
+						bodySize = (headers.substring(headerLineStart+16)).toInt();
 					}
+					headers = headers + c;
+					headerCount++;
+					headerLineStart = headerCount;
 				}
-
-				if (c == '\n') {
-					currentLineIsBlank = true;
-				}else if (c != '\r') {
-					currentLineIsBlank = false;
+			} else {
+				headers = headers + c;
+				headerCount++;
+			}
+		} else {
+			if (ch_count < maxMessageLength)  {
+				body = body + c;
+				ch_count++;
+				if (ch_count == bodySize) {
+					break;
 				}
+			}
+		}
+		if (c == '\n') {
+			currentLineIsBlank = true;
+		} else if (c != '\r') {
+			currentLineIsBlank = false;
+		}
       }
-      if (!_client->connected()) {
-          break;
-      }
+      if (ch_count == bodySize) {
+		break;
+	  }
     }
   }
   else{
@@ -123,18 +150,27 @@ String OctoprintApi::sendGetToOctoprint(String command) {
   closeClient();
 
   int httpCode = extractHttpCode(statusCode,body);
-  if (_debug){ 
+  if (_debug){
     Serial.print("\nhttpCode:");
     Serial.println(httpCode);
   }
   httpStatusCode = httpCode;
-  
+
   return body;
 }
+
+
+String OctoprintApi::sendGetToOctoprint(String command) {
+  if (_debug) Serial.println("OctoprintApi::sendGetToOctoprint() CALLED");
+
+  return sendRequestToOctoprint("GET", command, NULL);
+}
+
+
 /** getOctoprintVersion()
  * http://docs.octoprint.org/en/master/api/version.html#version-information
  * Retrieve information regarding server and API version. Returns a JSON object with two keys, api containing the API version, server containing the server version.
- * Status Codes:	
+ * Status Codes:
  * 200 OK – No error
  * */
 bool OctoprintApi::getOctoprintVersion(){
@@ -184,7 +220,7 @@ bool OctoprintApi::getPrinterStatistics(){
       printerStats.printerStateready = printerStateready;
       printerStats.printerStatesdReady = printerStatesdReady;
 
-      
+
     }
     if(root.containsKey("temperature")){
       float printerBedTempActual = root["temperature"]["bed"]["actual"];
@@ -215,7 +251,7 @@ bool OctoprintApi::getPrinterStatistics(){
 /***** PRINT JOB OPPERATIONS *****/
 /**
  * http://docs.octoprint.org/en/devel/api/job.html#issue-a-job-command
- * Job commands allow starting, pausing and cancelling print jobs. 
+ * Job commands allow starting, pausing and cancelling print jobs.
  * Available commands are: start, cancel, restart, pause - Accepts one optional additional parameter action specifying
  * which action to take - pause, resume, toggle
  * If no print job is active (either paused or printing), a 409 Conflict will be returned.
@@ -307,106 +343,12 @@ String OctoprintApi::getOctoprintEndpointResults(String command) {
 }
 
 
-/** POST TIME 
- * 
+/** POST TIME
+ *
  * **/
 String OctoprintApi::sendPostToOctoPrint(String command, char* postData) {
   if (_debug) Serial.println("OctoprintApi::sendPostToOctoPrint() CALLED");
-  String statusCode="";
-  String headers="";
-  String body="";
-  bool finishedStatusCode = false;
-  bool finishedHeaders = false;
-  bool currentLineIsBlank = true;
-  int ch_count = 0;
-  unsigned long now;
-  bool avail;
-
-  bool connected;
-
-  if(_usingIpAddress) {
-    connected = _client->connect(_octoPrintIp, _octoPrintPort);
-  } else {
-    connected = _client->connect(_octoPrintUrl, _octoPrintPort);
-  }
-
-  if (connected) {
-    if (_debug) Serial.println(".... connected to server");
-    _client->println("POST " + command + " HTTP/1.1");
-    _client->print("Host: ");
-    if(_usingIpAddress) {
-      _client->println(_octoPrintIp);
-    } else {
-      _client->println(_octoPrintUrl);
-    }
-    _client->println("Content-Type: application/json");
-    _client->print("X-Api-Key: "); _client->println(_apiKey);
-    _client->println("User-Agent: arduino/1.0");
-    _client->println("Connection: close");
-    _client->print("Content-Length: ");
-    _client->println(strlen(postData));// number of bytes in the payload
-    _client->println();// important need an empty line here 
-    _client->println(postData);// the payload
-
-
-    now = millis();
-    while (millis() - now < 3000) {
-      while (_client->available()) {
-        char c = _client->read();
-
-        if (_debug) Serial.print(c);
-
-        if(!finishedStatusCode){
-          if(c == '\n'){
-            finishedStatusCode = true;
-          } else {
-            statusCode = statusCode + c;
-          }
-        }
-
-        if(!finishedHeaders){
-					if (currentLineIsBlank && c == '\n') {
-						finishedHeaders = true;
-					}
-					else{
-						headers = headers + c;
-					}
-				} else {
-					if (ch_count < maxMessageLength)  {
-						body=body+c;
-						ch_count++;
-					}
-				}
-
-				if (c == '\n') {
-					currentLineIsBlank = true;
-				}else if (c != '\r') {
-					currentLineIsBlank = false;
-				}
-      }
-      if (!_client->connected()) {
-          break;
-      }
-    }
-  }
-  else{
-    if (_debug){
-      Serial.println("connection failed");
-      Serial.println(connected);
-    }
-  }
-
-  closeClient();
-
-  int httpCode = extractHttpCode(statusCode,body);
-  if (_debug){ 
-    Serial.print("\nhttpCode:");
-    Serial.println(httpCode);
-  }
-  httpStatusCode = httpCode;
-  if(httpCode!= 200 or httpCode!= 204) httpErrorBody = body;
-  
-  return body;
+  return sendRequestToOctoprint("POST", command, postData);
 }
 
 
@@ -414,7 +356,7 @@ String OctoprintApi::sendPostToOctoPrint(String command, char* postData) {
 /**
  * http://docs.octoprint.org/en/master/api/connection.html#issue-a-connection-command
  * Issue a connection command. Currently available command are: connect, disconnect, fake_ack
- * Status Codes: 
+ * Status Codes:
  * 204 No Content – No error
  * 400 Bad Request – If the selected port or baudrate for a connect command are not part of the available options.
  * */
@@ -444,7 +386,7 @@ bool OctoprintApi::octoPrintConnectionFakeAck(){
 /***** PRINT HEAD *****/
 /**
  * http://docs.octoprint.org/en/master/api/printer.html#issue-a-print-head-command
- * Print head commands allow jogging and homing the print head in all three axes. 
+ * Print head commands allow jogging and homing the print head in all three axes.
  * Available commands are: jog, home, feedrate
  * All of these commands except feedrate may only be sent if the printer is currently operational and not printing. Otherwise a 409 Conflict is returned.
  * Upon success, a status code of 204 No Content and an empty body is returned.
@@ -465,11 +407,11 @@ bool OctoprintApi::octoPrintPrintHeadHome(){
 /** octoPrintGetPrinterBed()
  * http://docs.octoprint.org/en/master/api/printer.html#retrieve-the-current-bed-state
  * Retrieves the current temperature data (actual, target and offset) plus optionally a (limited) history (actual, target, timestamp) for the printer’s heated bed.
- * It’s also possible to retrieve the temperature history by supplying the history query parameter set to true. 
+ * It’s also possible to retrieve the temperature history by supplying the history query parameter set to true.
  * The amount of returned history data points can be limited using the limit query parameter.
  * Returns a 200 OK with a Temperature Response in the body upon success.
  * If no heated bed is configured for the currently selected printer profile, the resource will return an 409 Conflict.
- * */ 
+ * */
 bool OctoprintApi::octoPrintGetPrinterBed(){
   String command = "/api/printer/bed?history=true&limit=2";
   String response = sendGetToOctoprint(command);
@@ -482,15 +424,15 @@ bool OctoprintApi::octoPrintGetPrinterBed(){
       float printerBedTempTarget = root["bed"]["target"];
       printerBed.printerBedTempActual = printerBedTempActual;
       printerBed.printerBedTempOffset = printerBedTempOffset;
-      printerBed.printerBedTempTarget = printerBedTempTarget;      
+      printerBed.printerBedTempTarget = printerBedTempTarget;
     }
     if (root.containsKey("history")) {
       JsonArray& history = root["history"];
         long historyTime = history[0]["time"];
-        float historyPrinterBedTempActual = history[0]["bed"]["actual"];        
+        float historyPrinterBedTempActual = history[0]["bed"]["actual"];
         printerBed.printerBedTempHistoryTimestamp = historyTime;
         printerBed.printerBedTempHistoryActual = historyPrinterBedTempActual;
-    }  
+    }
     return true;
   }
   return false;
@@ -557,7 +499,7 @@ bool OctoprintApi::octoPrintPrinterCommand(char* gcodeCommand){
 
   postData[0] = '\0';
   sprintf(postData,"{\"command\": \"%s\"}",gcodeCommand);
-  
+
   String response = sendPostToOctoPrint(command,postData);
 
   if(httpStatusCode == 204) return true;
@@ -591,7 +533,7 @@ int OctoprintApi::extractHttpCode(String statusCode, String body) {
     String statusCodeALL = statusCode.substring(firstSpace + 1);                //"400 BAD REQUEST"
     String statusCodeExtract = statusCode.substring(firstSpace + 1, lastSpace); //May end up being e.g. "400 BAD"
     int statusCodeInt = statusCodeExtract.toInt();                              //Converts to "400" integer - i.e. strips out rest of text characters "fix"
-    if(statusCodeInt != 200 
+    if(statusCodeInt != 200
     and statusCodeInt != 201
     and statusCodeInt != 202
     and statusCodeInt != 204){
