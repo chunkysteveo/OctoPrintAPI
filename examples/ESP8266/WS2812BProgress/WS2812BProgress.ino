@@ -12,7 +12,7 @@
  *  You will also need to enable CORS - http://docs.octoprint.org/en/master/api/general.html#cross-origin-requests
  *                                                                 *
  *  OctoprintApi by Stephen Ludgate https://www.youtube.com/channel/UCVEEuAouZ6ua4oetLjjHAuw 
- * Example written by A. Fichtner
+ *  Example written by A. Fichtner
  *******************************************************************/
  
 #include <OctoPrintAPI.h> //This is where the magic happens... shazam!
@@ -26,7 +26,7 @@
 #include <FastLED.h>
 
 #define LED_PIN D4
-#define NUM_LEDS 110       // Number of LED's on your stripe
+#define NUM_LEDS 110       // Number of LED's on your strip
 #define LED_BRIGHTNESS 150 // set Brightness value
 #define MILLI_AMPS 2400    // Maximum current your power source can deliver in mA
 #define CONNECTION_COLOR 0xFF00FF
@@ -37,8 +37,8 @@ const char* password = "PASSWORD";  // your network password
 WiFiClient client;
 
 // You only need to set one of the of follwowing:
-// IPAddress ip(192, 168, 179, 4);                         // Your IP address of your OctoPrint server (inernal or external)
-char* octoprint_host = "octopi.example.com";  // Or your hostname. Comment out one or the other.
+IPAddress ip(192, 168, 179, 4);                         // Your IP address of your OctoPrint server (inernal or external)
+//char* octoprint_host = "octopi.example.com";  // Or your hostname. Comment out one or the other.
 const int octoprint_httpPort = 80;  //If you are connecting through a router this will work, but you need a random port forwarded to the OctoPrint server from your router. Enter that port here if you are external
 String octoprint_apikey = "API_KEY"; //See top of file or GIT Readme about getting API key
 
@@ -47,8 +47,8 @@ unsigned long api_lasttime = 0;   //last time api request has been done
 byte connection_retry = 0;
 byte point = 0;
 // Use one of the following:
-// OctoprintApi api(client, ip, octoprint_httpPort, octoprint_apikey);               //If using IP address
-OctoprintApi api(client, octoprint_host, octoprint_httpPort, octoprint_apikey);//If using hostname. Comment out one or the other.
+OctoprintApi api(client, ip, octoprint_httpPort, octoprint_apikey);               //If using IP address
+//OctoprintApi api(client, octoprint_host, octoprint_httpPort, octoprint_apikey);//If using hostname. Comment out one or the other.
 
 void setup() {
   Serial.begin(115200);
@@ -96,7 +96,10 @@ void setup() {
       connection_retry++;
     }
   }
-  //if you get here you have connected to the WiFi
+   //if you get here you have connected to the WiFi
+  fill_solid(leds, NUM_LEDS, CRGB::Black);
+  FastLED.show();
+ 
   Serial.println("");
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
@@ -116,7 +119,6 @@ void loop() {
           Serial.println(" %");
           int progress = int((NUM_LEDS * int(api.printJob.progressCompletion)) / 100);
           fill_solid(leds, progress, CRGB::Green);
-          FastLED.setBrightness(255);
           delay(10);
           FastLED.show();
         }
