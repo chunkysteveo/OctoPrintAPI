@@ -7,9 +7,9 @@
  *  You will need the IP or hostname of your OctoPrint server, a
  *  port number (will be 80 unless you are reaching it from an
  *  external source) and an API key from the OctoPrint
- *  installation - http://docs.octoprint.org/en/master/api/general.html#authorization                              *
+ *  installation - http://docs.octoprint.org/en/master/api/general.html#authorization                              
  *  You will also need to enable CORS - http://docs.octoprint.org/en/master/api/general.html#cross-origin-requests
- *                                                                 *
+ * 
  *  By Stephen Ludgate https://www.youtube.com/channel/UCVEEuAouZ6ua4oetLjjHAuw
  *******************************************************************/
 
