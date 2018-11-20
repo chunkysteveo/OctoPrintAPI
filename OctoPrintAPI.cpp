@@ -288,6 +288,32 @@ bool OctoprintApi::octoPrintJobPauseResume(){
   if(httpStatusCode == 204) return true;
   return false;
 }
+
+bool OctoprintApi::octoPrintJobPause(){
+  String command = "/api/job";
+  char* postData = "{\"command\": \"pause\", \"action\": \"pause\"}";
+  String response = sendPostToOctoPrint(command,postData);
+  if(httpStatusCode == 204) return true;
+  return false;
+}
+
+bool OctoprintApi::octoPrintJobResume(){
+  String command = "/api/job";
+  char* postData = "{\"command\": \"pause\", \"action\": \"resume\"}";
+  String response = sendPostToOctoPrint(command,postData);
+  if(httpStatusCode == 204) return true;
+  return false;
+}
+
+
+bool OctoprintApi::octoPrintFileSelect(String& path){
+  String command = "/api/files/local" + path;
+  char* postData = "{\"command\": \"select\", \"print\": false }";
+  String response = sendPostToOctoPrint(command,postData);
+  if(httpStatusCode == 204) return true;
+  return false;
+}
+
 //bool OctoprintApi::octoPrintJobPause(String actionCommand){}
 
 /** getPrintJob
@@ -402,6 +428,91 @@ bool OctoprintApi::octoPrintPrintHeadHome(){
   if(httpStatusCode == 204) return true;
   return false;
 }
+
+
+bool OctoprintApi::octoPrintPrintHeadRelativeJog(double x, double y, double z, double f) {
+  String command = "/api/printer/printhead";
+  //  {
+  // "command": "jog",
+  // "x": 10,
+  // "y": -5,
+  // "z": 0.02,
+  // "absolute": false,
+  // "speed": 30
+  // }
+  char postData[1024];
+  char tmp[128];
+  postData[0] = '\0';
+
+  strcat(postData, "{\"command\": \"jog\"");
+  if (x != 0) {
+      snprintf(tmp, 128, ", \"x\": %f", x);
+      strcat(postData, tmp);
+  }
+  if (y != 0) {
+      snprintf(tmp, 128, ", \"y\": %f", y);
+      strcat(postData, tmp);
+  }
+  if (z != 0) {
+      snprintf(tmp, 128, ", \"z\": %f", z);
+      strcat(postData, tmp);
+  }
+  if (f != 0) {
+      snprintf(tmp, 128, ", \"speed\": %f", f);
+      strcat(postData, tmp);
+  }
+  strcat(postData, ", \"absolute\": false");
+  strcat(postData, " }");
+  Serial.println(postData);
+
+  String response = sendPostToOctoPrint(command,postData);
+  if(httpStatusCode == 204) return true;
+  return false;
+}
+
+bool OctoprintApi::octoPrintExtrude(double amount) {
+    String command = "/api/printer/tool";
+    char postData[256];
+    snprintf(postData, 256, "{ \"command\": \"extrude\", \"amount\": %f }", amount);
+
+    String response = sendPostToOctoPrint(command,postData);
+    if(httpStatusCode == 204) return true;
+    return false;
+}
+
+bool OctoprintApi::octoPrintSetBedTemperature(uint16_t t) {
+    String command = "/api/printer/bed";
+    char postData[256];
+    snprintf(postData, 256, "{ \"command\": \"target\", \"target\": %d }", t);
+
+    String response = sendPostToOctoPrint(command,postData);
+    if(httpStatusCode == 204) return true;
+    return false;
+}
+
+
+bool OctoprintApi::octoPrintSetTool0Temperature(uint16_t t){
+    String command = "/api/printer/tool";
+    char postData[256];
+    snprintf(postData, 256, "{ \"command\": \"target\", \"targets\": { \"tool0\": %d } }", t);
+
+    String response = sendPostToOctoPrint(command,postData);
+    if(httpStatusCode == 204) return true;
+    return false;
+}
+
+bool OctoprintApi::octoPrintSetTool1Temperature(uint16_t t){
+    String command = "/api/printer/tool";
+    char postData[256];
+    snprintf(postData, 256, "{ \"command\": \"target\", \"targets\": { \"tool1\": %d } }", t);
+
+    String response = sendPostToOctoPrint(command,postData);
+    if(httpStatusCode == 204) return true;
+    return false;
+}
+
+
+
 
 /***** PRINT BED *****/
 /** octoPrintGetPrinterBed()

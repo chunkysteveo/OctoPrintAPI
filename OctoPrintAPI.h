@@ -84,6 +84,11 @@ class OctoprintApi
     bool octoPrintConnectionAutoConnect();
     bool octoPrintConnectionFakeAck();
     bool octoPrintPrintHeadHome();
+    bool octoPrintPrintHeadRelativeJog(double x, double y, double z, double f);
+    bool octoPrintExtrude(double amount);
+    bool octoPrintSetBedTemperature(uint16_t t);
+    bool octoPrintSetTool0Temperature(uint16_t t);
+    bool octoPrintSetTool1Temperature(uint16_t t);
 
     bool octoPrintGetPrinterSD();
     bool octoPrintPrinterSDInit();
@@ -97,6 +102,9 @@ class OctoprintApi
     bool octoPrintJobCancel();
     bool octoPrintJobRestart();
     bool octoPrintJobPauseResume();
+    bool octoPrintJobPause();
+    bool octoPrintJobResume();
+    bool octoPrintFileSelect(String& path);
 
     bool octoPrintPrinterCommand(char* gcodeCommand);
 
