@@ -69,8 +69,8 @@ OctoprintApi::OctoprintApi(Client& client, char* octoPrintUrl, int octoPrintPort
   if (connected) {
     if (_debug) Serial.println(".... connected to server");
 
-    char useragent[40];
-    sprintf(useragent,"User-Agent: %s",USER_AGENT);
+    char useragent[64];
+    snprintf(useragent, 64, "User-Agent: %s",USER_AGENT);
     
     _client->println(type + " " + command + " HTTP/1.1");
     _client->print("Host: ");
