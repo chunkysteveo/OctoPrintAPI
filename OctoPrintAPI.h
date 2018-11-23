@@ -15,7 +15,7 @@
 #include <Client.h>
 
 #define OPAPI_TIMEOUT 3000
-#define USER_AGENT "OctoPrintAPI/1.1.2 (Arduino)"
+#define USER_AGENT "OctoPrintAPI/1.1.3 (Arduino)"
 
 struct printerStatistics{
   String printerState;
