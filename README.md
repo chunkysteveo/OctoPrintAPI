@@ -89,6 +89,8 @@ See the [LICENSE.md](LICENSE.md) file for details
 
 
 ## Release History
+* 1.1.3
+    * Fix to USER_AGENT string length which was causing a stack error on ESP32 platform - thanks (again!) [sidddy](https://github.com/sidddy)!
 * 1.1.2
     * Updates to how the core function calls the API, no more delay() function, and updates to correct anything in ESP8266 2.4.2 core - thanks [sidddy](https://github.com/sidddy)!
     * Added additional endpoint calls, mainly target temperatures - thanks [anfichtn](https://github.com/anfichtn) and also set temps, extrude and a relative jog command - move that head! (Thanks again to [sidddy](https://github.com/sidddy))
