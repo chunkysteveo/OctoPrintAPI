@@ -89,6 +89,8 @@ See the [LICENSE.md](LICENSE.md) file for details
 
 
 ## Release History
+* 1.1.4
+    * Small fix (possible new error!) to NOT check _client->connected() before _client->stop() as it seems to crash/hang ESP32 if server response is 502 Bad Gateway, i.e. when you reboot OctoPi server or restart OctoPrint service and it keeps checking the connection. A 502 server error seems to halt the ESP32 on checking _client->connected() before closure. If anyone can shed light on this. Removing this check seems to keep everything working for both ESP32 and ESP8266 and you can power cycle your printer server without the 'Arduino' hanging. The ESP8266 seems to work with or without this check before _client->stop().
 * 1.1.3
     * Fix to USER_AGENT string length which was causing a stack error on ESP32 platform - thanks (again!) [sidddy](https://github.com/sidddy)!
 * 1.1.2
