@@ -627,9 +627,9 @@ bool OctoprintApi::octoPrintPrinterCommand(char* gcodeCommand){
  * Close the client
  * */
 void OctoprintApi::closeClient() {
-  if(_client->connected()){
+  // if(_client->connected()){    //1.1.4 - Seems to crash/halt ESP32 if 502 Bad Gateway server error
     _client->stop();
-  }
+  // }
 }
 
 /**
