@@ -76,20 +76,28 @@ void loop() {
     if (WiFi.status() == WL_CONNECTED) { //Check WiFi connection status     
       if(api.getPrintJob()){  //Get the print job API endpoint
         Serial.println("--------------getPrintJob()-------------");
-        Serial.print("Printer current state string:\t");
+        Serial.print("Printer current state string:\t\t");
         Serial.println(api.printJob.printerState);
 
         Serial.println();
         Serial.println("----------Job (File information)--------");
-        Serial.print("jobFileDate (Epoch) long:\t");
+        Serial.print("jobFileDate (Epoch) long:\t\t");
         Serial.println(api.printJob.jobFileDate);
-        Serial.print("jobFileName String:\t\t");
+        Serial.print("jobFileName String:\t\t\t");
         Serial.println(api.printJob.jobFileName);
-        Serial.print("jobFileOrigin String:\t\t");
+        Serial.print("jobFileOrigin String:\t\t\t");
         Serial.println(api.printJob.jobFileOrigin);
-        Serial.print("jobFileSize (bytes) long:\t");
+        Serial.print("jobFileSize (bytes) long:\t\t");
         Serial.println(api.printJob.jobFileSize);
-        Serial.print("estimatedPrintTime (sec) long:\t");
+        Serial.print("jobFilamentTool0Length (mm) long:\t");
+        Serial.println(api.printJob.jobFilamentTool0Length);
+        Serial.print("jobFilamentTool0Volume (cm³) float:\t");
+        Serial.println(api.printJob.jobFilamentTool0Volume);
+        Serial.print("jobFilamentTool1Length (mm) long:\t");
+        Serial.println(api.printJob.jobFilamentTool1Length);
+        Serial.print("jobFilamentTool1Volume (cm³) float:\t");
+        Serial.println(api.printJob.jobFilamentTool1Volume);
+        Serial.print("estimatedPrintTime (sec) long:\t\t");
         Serial.println(api.printJob.estimatedPrintTime);
         Serial.println("----------------------------------------");  
         Serial.println();
@@ -119,6 +127,25 @@ void loop() {
         Serial.print("File size:\t\t");
         Serial.print(temp_size_mb);
         Serial.println("MB");
+
+        //Filament info in readable text:
+        const float mm_in_m = 1000;
+        if(api.printJob.jobFilamentTool0Length!=0){
+          const float filament_length_meter0 = api.printJob.jobFilamentTool0Length/mm_in_m;
+          Serial.print("Filament (Tool 0):\t");
+          Serial.print(filament_length_meter0);
+          Serial.print("m / ");
+          Serial.print(api.printJob.jobFilamentTool0Volume);
+          Serial.println("cm³");
+        }
+        if(api.printJob.jobFilamentTool1Length!=0){
+          const float filament_length_meter1 = api.printJob.jobFilamentTool1Length/mm_in_m;
+          Serial.print("Filament (Tool 1):\t");
+          Serial.print(filament_length_meter1);
+          Serial.print("m / ");
+          Serial.print(api.printJob.jobFilamentTool1Volume);
+          Serial.println("cm³");
+        }
 
         //File upload time in human readable date and time YYYY-MM-DD HH:MM:SS
         char bufDate[31];

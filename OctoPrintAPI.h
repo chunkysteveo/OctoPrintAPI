@@ -15,7 +15,7 @@
 #include <Client.h>
 
 #define OPAPI_TIMEOUT 3000
-#define USER_AGENT "OctoPrintAPI/1.1.3 (Arduino)"
+#define USER_AGENT "OctoPrintAPI/1.1.4 (Arduino)"
 
 struct printerStatistics{
   String printerState;
@@ -53,6 +53,11 @@ struct printJobCall{
   long progressFilepos;
   long progressPrintTime;
   long progressPrintTimeLeft;
+
+  long jobFilamentTool0Length;
+  float jobFilamentTool0Volume;
+  long jobFilamentTool1Length;
+  float jobFilamentTool1Volume;
 };
 
 struct printerBedCall{
