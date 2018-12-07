@@ -53,6 +53,11 @@ struct printJobCall{
   long progressFilepos;
   long progressPrintTime;
   long progressPrintTimeLeft;
+
+  long jobFilamentTool0Length;
+  float jobFilamentTool0Volume;
+  long jobFilamentTool1Length;
+  float jobFilamentTool1Volume;
 };
 
 struct printerBedCall{

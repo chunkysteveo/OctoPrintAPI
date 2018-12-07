@@ -341,11 +341,19 @@ bool OctoprintApi::getPrintJob(){
       String jobFileName = root["job"]["file"]["name"] | "";
       String jobFileOrigin = root["job"]["file"]["origin"] | "";
       long jobFileSize = root["job"]["file"]["size"];
-
       printJob.jobFileDate = jobFileDate;
       printJob.jobFileName = jobFileName;
       printJob.jobFileOrigin = jobFileOrigin;
       printJob.jobFileSize = jobFileSize;
+
+      long jobFilamentTool0Length = root["job"]["filament"]["tool0"]["length"] | 0;
+      float jobFilamentTool0Volume = root["job"]["filament"]["tool0"]["volume"] | 0.0;
+      printJob.jobFilamentTool0Length = jobFilamentTool0Length;
+      printJob.jobFilamentTool0Volume = jobFilamentTool0Volume;
+      long jobFilamentTool1Length = root["job"]["filament"]["tool1"]["length"] | 0;
+      float jobFilamentTool1Volume = root["job"]["filament"]["tool1"]["volume"] | 0.0;
+      printJob.jobFilamentTool1Length = jobFilamentTool1Length;
+      printJob.jobFilamentTool1Volume = jobFilamentTool1Volume;
     }
     if (root.containsKey("progress")) {
       float progressCompletion = root["progress"]["completion"] | 0.0;//isnan(root["progress"]["completion"]) ? 0.0 : root["progress"]["completion"];
