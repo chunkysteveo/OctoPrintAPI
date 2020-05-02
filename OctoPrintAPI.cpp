@@ -179,9 +179,11 @@ String OctoprintApi::sendGetToOctoprint(String command) {
 bool OctoprintApi::getOctoprintVersion(){
   String command="/api/version";
   String response = sendGetToOctoprint(command);
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject& root = jsonBuffer.parseObject(response);
-  if(root.success()) {
+  // DynamicJsonBuffer jsonBuffer;
+  // JsonObject& root = jsonBuffer.parseObject(response);
+    StaticJsonDocument<500> root;
+  auto success = !deserializeJson(root, response);
+  if(success) {
     if (root.containsKey("api")) {
       String octoprintApi = root["api"];
       String octoprintServer = root["server"];
@@ -201,9 +203,11 @@ bool OctoprintApi::getOctoprintVersion(){
 bool OctoprintApi::getPrinterStatistics(){
   String command="/api/printer";
   String response = sendGetToOctoprint(command);       //recieve reply from OctoPrint
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject& root = jsonBuffer.parseObject(response);
-  if(root.success()) {
+  // DynamicJsonBuffer jsonBuffer;
+  // JsonObject& root = jsonBuffer.parseObject(response);
+    StaticJsonDocument<500> root;
+  auto success = !deserializeJson(root, response);
+  if(success) {
     if (root.containsKey("state")) {
       String printerState = root["state"]["text"];
       bool printerStateclosedOrError = root["state"]["flags"]["closedOrError"];
@@ -327,9 +331,11 @@ bool OctoprintApi::octoPrintFileSelect(String& path){
 bool OctoprintApi::getPrintJob(){
   String command="/api/job";
   String response = sendGetToOctoprint(command);
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject& root = jsonBuffer.parseObject(response);
-  if(root.success()) {
+  // DynamicJsonBuffer jsonBuffer;
+  // JsonObject& root = jsonBuffer.parseObject(response);
+    StaticJsonDocument<500> root;
+  auto success = !deserializeJson(root, response);
+  if(success) {
     String printerState = root["state"];
     printJob.printerState = printerState;
 
@@ -537,9 +543,11 @@ bool OctoprintApi::octoPrintSetTool1Temperature(uint16_t t){
 bool OctoprintApi::octoPrintGetPrinterBed(){
   String command = "/api/printer/bed?history=true&limit=2";
   String response = sendGetToOctoprint(command);
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject& root = jsonBuffer.parseObject(response);
-  if(root.success()) {
+  // DynamicJsonBuffer jsonBuffer;
+  // JsonObject& root = jsonBuffer.parseObject(response);
+    StaticJsonDocument<500> root;
+  auto success = !deserializeJson(root, response);
+  if(success) {
     if (root.containsKey("bed")) {
       float printerBedTempActual = root["bed"]["actual"];
       float printerBedTempOffset = root["bed"]["offset"];
@@ -549,7 +557,8 @@ bool OctoprintApi::octoPrintGetPrinterBed(){
       printerBed.printerBedTempTarget = printerBedTempTarget;
     }
     if (root.containsKey("history")) {
-      JsonArray& history = root["history"];
+        // StaticJsonDocument<500> history;
+        JsonArray history = root["history"];
         long historyTime = history[0]["time"];
         float historyPrinterBedTempActual = history[0]["bed"]["actual"];
         printerBed.printerBedTempHistoryTimestamp = historyTime;
@@ -598,9 +607,11 @@ Returns a 200 OK with an SD State Response in the body upon success.
 bool OctoprintApi::octoPrintGetPrinterSD(){
   String command = "/api/printer/sd";
   String response = sendGetToOctoprint(command);
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject& root = jsonBuffer.parseObject(response);
-  if(root.success()) {
+  // DynamicJsonBuffer jsonBuffer;
+  // JsonObject& root = jsonBuffer.parseObject(response);
+    StaticJsonDocument<500> root;
+  auto success = !deserializeJson(root, response);
+  if(success) {
       bool printerStatesdReady = root["ready"];
       printerStats.printerStatesdReady = printerStatesdReady;
     return true;
