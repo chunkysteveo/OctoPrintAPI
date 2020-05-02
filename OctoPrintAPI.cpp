@@ -333,7 +333,7 @@ bool OctoprintApi::getPrintJob(){
   String response = sendGetToOctoprint(command);
   // DynamicJsonBuffer jsonBuffer;
   // JsonObject& root = jsonBuffer.parseObject(response);
-    StaticJsonDocument<500> root;
+  StaticJsonDocument<1024> root;
   auto success = !deserializeJson(root, response);
   if(success) {
     String printerState = root["state"];
