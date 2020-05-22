@@ -235,7 +235,7 @@ bool OctoprintApi::getPrinterStatistics()
       printerStats.printerState = (const char *)root["state"]["text"];
       printerStats.printerStateclosedOrError = root["state"]["flags"]["closedOrError"];
       printerStats.printerStateerror = root["state"]["flags"]["error"];
-      printerStats.printerStateoperational = root["state"]["flags"]["error"];
+      printerStats.printerStateoperational = root["state"]["flags"]["operational"];
       printerStats.printerStatepaused = root["state"]["flags"]["paused"];
       printerStats.printerStatePrinting = root["state"]["flags"]["printing"];
       printerStats.printerStateready = root["state"]["flags"]["ready"];
@@ -256,8 +256,7 @@ bool OctoprintApi::getPrinterStatistics()
   {
     if (response == "Printer is not operational")
     {
-      String printerState = response;
-      printerStats.printerState = printerState;
+      printerStats.printerState = response;
       printerStats.printerStateoperational = false;
       return true;
     }
@@ -289,7 +288,7 @@ bool OctoprintApi::octoPrintJobCancel()
 {
   String command = "/api/job";
   char *postData = "{\"command\": \"cancel\"}";
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -299,7 +298,7 @@ bool OctoprintApi::octoPrintJobRestart()
 {
   String command = "/api/job";
   char *postData = "{\"command\": \"restart\"}";
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -309,7 +308,7 @@ bool OctoprintApi::octoPrintJobPauseResume()
 {
   String command = "/api/job";
   char *postData = "{\"command\": \"pause\"}";
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -319,7 +318,7 @@ bool OctoprintApi::octoPrintJobPause()
 {
   String command = "/api/job";
   char *postData = "{\"command\": \"pause\", \"action\": \"pause\"}";
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -329,7 +328,7 @@ bool OctoprintApi::octoPrintJobResume()
 {
   String command = "/api/job";
   char *postData = "{\"command\": \"pause\", \"action\": \"resume\"}";
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -339,7 +338,7 @@ bool OctoprintApi::octoPrintFileSelect(String &path)
 {
   String command = "/api/files/local" + path;
   char *postData = "{\"command\": \"select\", \"print\": false }";
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -437,7 +436,7 @@ bool OctoprintApi::octoPrintConnectionAutoConnect()
 {
   String command = "/api/connection";
   char *postData = "{\"command\": \"connect\"}";
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -446,7 +445,8 @@ bool OctoprintApi::octoPrintConnectionDisconnect()
 {
   String command = "/api/connection";
   char *postData = "{\"command\": \"disconnect\"}";
-  String response = sendPostToOctoPrint(command, postData);
+  
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -455,7 +455,7 @@ bool OctoprintApi::octoPrintConnectionFakeAck()
 {
   String command = "/api/connection";
   char *postData = "{\"command\": \"fake_ack\"}";
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -477,7 +477,7 @@ bool OctoprintApi::octoPrintPrintHeadHome()
   //   "axes": ["x", "y", "z"]
   // }
   char *postData = "{\"command\": \"home\",\"axes\": [\"x\", \"y\"]}";
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -524,7 +524,7 @@ bool OctoprintApi::octoPrintPrintHeadRelativeJog(double x, double y, double z, d
   if (_debug)
     Serial.println(postData);
 
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -536,7 +536,7 @@ bool OctoprintApi::octoPrintExtrude(double amount)
   char postData[256];
   snprintf(postData, 256, "{ \"command\": \"extrude\", \"amount\": %f }", amount);
 
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -548,7 +548,7 @@ bool OctoprintApi::octoPrintSetBedTemperature(uint16_t t)
   char postData[256];
   snprintf(postData, 256, "{ \"command\": \"target\", \"target\": %d }", t);
 
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -560,7 +560,7 @@ bool OctoprintApi::octoPrintSetTool0Temperature(uint16_t t)
   char postData[256];
   snprintf(postData, 256, "{ \"command\": \"target\", \"targets\": { \"tool0\": %d } }", t);
 
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -572,7 +572,7 @@ bool OctoprintApi::octoPrintSetTool1Temperature(uint16_t t)
   char postData[256];
   snprintf(postData, 256, "{ \"command\": \"target\", \"targets\": { \"tool1\": %d } }", t);
 
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -630,7 +630,7 @@ bool OctoprintApi::octoPrintPrinterSDInit()
 {
   String command = "/api/printer/sd";
   char *postData = "{\"command\": \"init\"}";
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -639,7 +639,7 @@ bool OctoprintApi::octoPrintPrinterSDRefresh()
 {
   String command = "/api/printer/sd";
   char *postData = "{\"command\": \"refresh\"}";
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -648,7 +648,7 @@ bool OctoprintApi::octoPrintPrinterSDRelease()
 {
   String command = "/api/printer/sd";
   char *postData = "{\"command\": \"release\"}";
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -691,7 +691,7 @@ bool OctoprintApi::octoPrintPrinterCommand(char *gcodeCommand)
   postData[0] = '\0';
   sprintf(postData, "{\"command\": \"%s\"}", gcodeCommand);
 
-  String response = sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint(command, postData);
 
   if (httpStatusCode == 204)
     return true;
@@ -705,13 +705,7 @@ bool OctoprintApi::octoPrintPrinterCommand(char *gcodeCommand)
  * */
 void OctoprintApi::closeClient()
 {
-<<<<<<< HEAD
   _client->stop();
-=======
-  // if(_client->connected()){    //1.1.4 - Seems to crash/halt ESP32 if 502 Bad Gateway server error
-  _client->stop();
-  // }
->>>>>>> 48186caa06f2872ca6c978d8e7e9aaf59232a57b
 }
 
 /**
@@ -732,7 +726,6 @@ int OctoprintApi::extractHttpCode(String statusCode, String body)
     String statusCodeALL = statusCode.substring(firstSpace + 1);                //"400 BAD REQUEST"
     String statusCodeExtract = statusCode.substring(firstSpace + 1, lastSpace); //May end up being e.g. "400 BAD"
     int statusCodeInt = statusCodeExtract.toInt();                              //Converts to "400" integer - i.e. strips out rest of text characters "fix"
-<<<<<<< HEAD
     if (_debug and statusCodeInt != 200 and statusCodeInt != 201 and statusCodeInt != 202 and statusCodeInt != 204)
     {
       Serial.print("\nSERVER RESPONSE CODE: " + String(statusCodeALL));
@@ -740,19 +733,9 @@ int OctoprintApi::extractHttpCode(String statusCode, String body)
         Serial.println(" - " + body);
       else
         Serial.println();
-=======
-    if (statusCodeInt != 200 and statusCodeInt != 201 and statusCodeInt != 202 and statusCodeInt != 204)
-    {
-
-      //Serial.print("\nSERVER RESPONSE CODE: " + String(statusCodeALL));
-      //if(body!="") Serial.println(" - " + body);
-      //else Serial.println();
->>>>>>> 48186caa06f2872ca6c978d8e7e9aaf59232a57b
     }
     return statusCodeInt;
   }
   else
-  {
     return -1;
-  }
 }
