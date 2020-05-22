@@ -278,7 +278,8 @@ bool OctoprintApi::octoPrintJobStart()
 {
   String command = "/api/job";
   char *postData = "{\"command\": \"start\"}";
-  String response = sendPostToOctoPrint(command, postData);
+  
+  sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
   return false;
@@ -704,7 +705,13 @@ bool OctoprintApi::octoPrintPrinterCommand(char *gcodeCommand)
  * */
 void OctoprintApi::closeClient()
 {
+<<<<<<< HEAD
   _client->stop();
+=======
+  // if(_client->connected()){    //1.1.4 - Seems to crash/halt ESP32 if 502 Bad Gateway server error
+  _client->stop();
+  // }
+>>>>>>> 48186caa06f2872ca6c978d8e7e9aaf59232a57b
 }
 
 /**
@@ -725,6 +732,7 @@ int OctoprintApi::extractHttpCode(String statusCode, String body)
     String statusCodeALL = statusCode.substring(firstSpace + 1);                //"400 BAD REQUEST"
     String statusCodeExtract = statusCode.substring(firstSpace + 1, lastSpace); //May end up being e.g. "400 BAD"
     int statusCodeInt = statusCodeExtract.toInt();                              //Converts to "400" integer - i.e. strips out rest of text characters "fix"
+<<<<<<< HEAD
     if (_debug and statusCodeInt != 200 and statusCodeInt != 201 and statusCodeInt != 202 and statusCodeInt != 204)
     {
       Serial.print("\nSERVER RESPONSE CODE: " + String(statusCodeALL));
@@ -732,6 +740,14 @@ int OctoprintApi::extractHttpCode(String statusCode, String body)
         Serial.println(" - " + body);
       else
         Serial.println();
+=======
+    if (statusCodeInt != 200 and statusCodeInt != 201 and statusCodeInt != 202 and statusCodeInt != 204)
+    {
+
+      //Serial.print("\nSERVER RESPONSE CODE: " + String(statusCodeALL));
+      //if(body!="") Serial.println(" - " + body);
+      //else Serial.println();
+>>>>>>> 48186caa06f2872ca6c978d8e7e9aaf59232a57b
     }
     return statusCodeInt;
   }
