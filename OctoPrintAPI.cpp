@@ -95,9 +95,7 @@ String OctoprintApi::sendRequestToOctoprint(String type, String command, char *d
       _client->println(data);         // the payload
     }
     else
-    {
       _client->println();
-    }
 
     now = millis();
     while (millis() - now < OPAPI_TIMEOUT)
@@ -122,9 +120,7 @@ String OctoprintApi::sendRequestToOctoprint(String type, String command, char *d
           if (c == '\n')
           {
             if (currentLineIsBlank)
-            {
               finishedHeaders = true;
-            }
             else
             {
               if (headers.substring(headerLineStart).startsWith("Content-Length: "))
@@ -202,8 +198,7 @@ bool OctoprintApi::getOctoprintVersion()
   String command = "/api/version";
   String response = sendGetToOctoprint(command);
   StaticJsonDocument<1024> root;
-  auto success = !deserializeJson(root, response);
-  if (success)
+  if (!deserializeJson(root, response))
   {
     if (root.containsKey("api"))
     {
@@ -227,8 +222,7 @@ bool OctoprintApi::getPrinterStatistics()
                                                  // DynamicJsonBuffer jsonBuffer;
                                                  // JsonObject& root = jsonBuffer.parseObject(response);
   StaticJsonDocument<1024> root;
-  auto success = !deserializeJson(root, response);
-  if (success)
+  if (!deserializeJson(root, response))
   {
     if (root.containsKey("state"))
     {
@@ -277,7 +271,7 @@ bool OctoprintApi::octoPrintJobStart()
 {
   String command = "/api/job";
   char *postData = "{\"command\": \"start\"}";
-  
+
   sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
@@ -355,49 +349,32 @@ bool OctoprintApi::getPrintJob()
 {
   String command = "/api/job";
   String response = sendGetToOctoprint(command);
-  // DynamicJsonBuffer jsonBuffer;
-  // JsonObject& root = jsonBuffer.parseObject(response);
+
   StaticJsonDocument<1024> root;
-  auto success = !deserializeJson(root, response);
-  if (success)
+  if (!deserializeJson(root, response))
   {
-    String printerState = root["state"];
-    printJob.printerState = printerState;
+    printJob.printerState = (const char *)root["state"];
 
     if (root.containsKey("job"))
     {
-      long estimatedPrintTime = root["job"]["estimatedPrintTime"];
-      printJob.estimatedPrintTime = estimatedPrintTime;
+      printJob.estimatedPrintTime = root["job"]["estimatedPrintTime"];
 
-      long jobFileDate = root["job"]["file"]["date"];
-      String jobFileName = root["job"]["file"]["name"] | "";
-      String jobFileOrigin = root["job"]["file"]["origin"] | "";
-      long jobFileSize = root["job"]["file"]["size"];
-      printJob.jobFileDate = jobFileDate;
-      printJob.jobFileName = jobFileName;
-      printJob.jobFileOrigin = jobFileOrigin;
-      printJob.jobFileSize = jobFileSize;
+      printJob.jobFileDate = root["job"]["file"]["date"];
+      printJob.jobFileName = (const char *) (root["job"]["file"]["name"] | "");
+      printJob.jobFileOrigin = (const char *)(root["job"]["file"]["origin"] | "");
+      printJob.jobFileSize = root["job"]["file"]["size"];
 
-      long jobFilamentTool0Length = root["job"]["filament"]["tool0"]["length"] | 0;
-      float jobFilamentTool0Volume = root["job"]["filament"]["tool0"]["volume"] | 0.0;
-      printJob.jobFilamentTool0Length = jobFilamentTool0Length;
-      printJob.jobFilamentTool0Volume = jobFilamentTool0Volume;
-      long jobFilamentTool1Length = root["job"]["filament"]["tool1"]["length"] | 0;
-      float jobFilamentTool1Volume = root["job"]["filament"]["tool1"]["volume"] | 0.0;
-      printJob.jobFilamentTool1Length = jobFilamentTool1Length;
-      printJob.jobFilamentTool1Volume = jobFilamentTool1Volume;
+      printJob.jobFilamentTool0Length = root["job"]["filament"]["tool0"]["length"] | 0;
+      printJob.jobFilamentTool0Volume = root["job"]["filament"]["tool0"]["volume"] | 0.0;
+      printJob.jobFilamentTool1Length = root["job"]["filament"]["tool1"]["length"] | 0;
+      printJob.jobFilamentTool1Volume = root["job"]["filament"]["tool1"]["volume"] | 0.0;
     }
     if (root.containsKey("progress"))
     {
-      float progressCompletion = root["progress"]["completion"] | 0.0; //isnan(root["progress"]["completion"]) ? 0.0 : root["progress"]["completion"];
-      long progressFilepos = root["progress"]["filepos"];
-      long progressPrintTime = root["progress"]["printTime"];
-      long progressPrintTimeLeft = root["progress"]["printTimeLeft"];
-
-      printJob.progressCompletion = progressCompletion;
-      printJob.progressFilepos = progressFilepos;
-      printJob.progressPrintTime = progressPrintTime;
-      printJob.progressPrintTimeLeft = progressPrintTimeLeft;
+      printJob.progressCompletion = root["progress"]["completion"] | 0.0;
+      printJob.progressFilepos = root["progress"]["filepos"];
+      printJob.progressPrintTime = root["progress"]["printTime"];
+      printJob.progressPrintTimeLeft = root["progress"]["printTimeLeft"];
     }
     return true;
   }
@@ -445,7 +422,7 @@ bool OctoprintApi::octoPrintConnectionDisconnect()
 {
   String command = "/api/connection";
   char *postData = "{\"command\": \"disconnect\"}";
-  
+
   sendPostToOctoPrint(command, postData);
   if (httpStatusCode == 204)
     return true;
@@ -591,29 +568,22 @@ bool OctoprintApi::octoPrintGetPrinterBed()
 {
   String command = "/api/printer/bed?history=true&limit=2";
   String response = sendGetToOctoprint(command);
-  // DynamicJsonBuffer jsonBuffer;
-  // JsonObject& root = jsonBuffer.parseObject(response);
+
   StaticJsonDocument<1024> root;
-  auto success = !deserializeJson(root, response);
-  if (success)
+  if (!deserializeJson(root, response))
   {
     if (root.containsKey("bed"))
     {
-      float printerBedTempActual = root["bed"]["actual"];
-      float printerBedTempOffset = root["bed"]["offset"];
-      float printerBedTempTarget = root["bed"]["target"];
-      printerBed.printerBedTempActual = printerBedTempActual;
-      printerBed.printerBedTempOffset = printerBedTempOffset;
-      printerBed.printerBedTempTarget = printerBedTempTarget;
+      printerBed.printerBedTempActual = root["bed"]["actual"];
+      printerBed.printerBedTempOffset = root["bed"]["offset"];
+      printerBed.printerBedTempTarget = root["bed"]["target"];
     }
     if (root.containsKey("history"))
     {
       // StaticJsonDocument<1024> history;
       JsonArray history = root["history"];
-      long historyTime = history[0]["time"];
-      float historyPrinterBedTempActual = history[0]["bed"]["actual"];
-      printerBed.printerBedTempHistoryTimestamp = historyTime;
-      printerBed.printerBedTempHistoryActual = historyPrinterBedTempActual;
+      printerBed.printerBedTempHistoryTimestamp = history[0]["time"];
+      printerBed.printerBedTempHistoryActual = history[0]["bed"]["actual"];
     }
     return true;
   }
@@ -664,11 +634,9 @@ bool OctoprintApi::octoPrintGetPrinterSD()
 {
   String command = "/api/printer/sd";
   String response = sendGetToOctoprint(command);
-  // DynamicJsonBuffer jsonBuffer;
-  // JsonObject& root = jsonBuffer.parseObject(response);
+
   StaticJsonDocument<1024> root;
-  auto success = !deserializeJson(root, response);
-  if (success)
+  if (!deserializeJson(root, response))
   {
     bool printerStatesdReady = root["ready"];
     printerStats.printerStatesdReady = printerStatesdReady;
