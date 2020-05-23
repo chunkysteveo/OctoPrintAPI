@@ -15,7 +15,9 @@
 #include <Client.h>
 
 #define OPAPI_TIMEOUT 3000
-#define POSTDATE_SIZE 256
+#define POSTDATA_SIZE 256
+#define POSTDATA_GCODE_SIZE 50
+#define JSONDOCUMENT_SIZE 1024
 #define USER_AGENT "OctoPrintAPI/1.1.4 (Arduino)"
 
 struct printerStatistics
@@ -28,17 +30,21 @@ struct printerStatistics
   bool printerStatePrinting;
   bool printerStateready;
   bool printerStatesdReady;
+
   float printerBedTempActual;
-  float printerTool0TempActual;
-  float printerTool1TempActual;
-
   float printerBedTempTarget;
-  float printerTool0TempTarget;
-  float printerTool1TempTarget;
-
   float printerBedTempOffset;
+  bool printerBedAvailable;
+
+  float printerTool0TempActual;
+  float printerTool0TempTarget;
   float printerTool0TempOffset;
+  bool printerTool0Available;
+
+  float printerTool1TempTarget;
+  float printerTool1TempActual;
   float printerTool1TempOffset;
+  bool printerTool1Available;
 };
 
 struct octoprintVersion

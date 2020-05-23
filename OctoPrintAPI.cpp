@@ -196,7 +196,7 @@ String OctoprintApi::sendGetToOctoprint(String command)
 bool OctoprintApi::getOctoprintVersion()
 {
   String response = sendGetToOctoprint("/api/version");
-  StaticJsonDocument<1024> root;
+  StaticJsonDocument<JSONDOCUMENT_SIZE> root;
 
   if (!deserializeJson(root, response) && root.containsKey("api"))
   {
@@ -216,7 +216,7 @@ bool OctoprintApi::getPrinterStatistics()
 {
   String response = sendGetToOctoprint("/api/printer"); //recieve reply from OctoPrint
 
-  StaticJsonDocument<1024> root;
+  StaticJsonDocument<JSONDOCUMENT_SIZE> root;
   if (!deserializeJson(root, response))
   {
     if (root.containsKey("state"))
@@ -230,17 +230,35 @@ bool OctoprintApi::getPrinterStatistics()
       printerStats.printerStateready = root["state"]["flags"]["ready"];
       printerStats.printerStatesdReady = root["state"]["flags"]["sdReady"];
     }
+    
+    printerStats.printerBedAvailable = false;
+    printerStats.printerTool0Available = false;
+    printerStats.printerTool1Available = false;
     if (root.containsKey("temperature"))
     {
-      printerStats.printerBedTempActual = root["temperature"]["bed"]["actual"];
-      printerStats.printerTool0TempActual = root["temperature"]["tool0"]["actual"];
-      printerStats.printerTool1TempActual = root["temperature"]["tool1"]["actual"];
-      printerStats.printerBedTempTarget = root["temperature"]["bed"]["target"];
-      printerStats.printerTool0TempTarget = root["temperature"]["tool0"]["target"];
-      printerStats.printerTool1TempTarget = root["temperature"]["tool1"]["target"];
-      printerStats.printerBedTempOffset = root["temperature"]["bed"]["offset"];
-      printerStats.printerTool0TempOffset = root["temperature"]["tool0"]["offset"];
-      printerStats.printerTool1TempOffset = root["temperature"]["tool1"]["offset"];
+      if (root["temperature"].containsKey("bed"))
+      {
+        printerStats.printerBedTempActual = root["temperature"]["bed"]["actual"];
+        printerStats.printerBedTempTarget = root["temperature"]["bed"]["target"];
+        printerStats.printerBedTempOffset = root["temperature"]["bed"]["offset"];
+        printerStats.printerBedAvailable = true;
+      }
+
+      if (root["temperature"].containsKey("tool0"))
+      {
+        printerStats.printerTool0TempActual = root["temperature"]["tool0"]["actual"];
+        printerStats.printerTool0TempTarget = root["temperature"]["tool0"]["target"];
+        printerStats.printerTool0TempOffset = root["temperature"]["tool0"]["offset"];
+        printerStats.printerTool0Available = true;
+      }
+
+      if (root["temperature"].containsKey("tool1"))
+      {
+        printerStats.printerTool1TempActual = root["temperature"]["tool1"]["actual"];
+        printerStats.printerTool1TempTarget = root["temperature"]["tool1"]["target"];
+        printerStats.printerTool1TempOffset = root["temperature"]["tool1"]["offset"];
+        printerStats.printerTool1Available = true;
+      }
     }
     return true;
   }
@@ -318,7 +336,7 @@ bool OctoprintApi::getPrintJob()
 {
   String response = sendGetToOctoprint("/api/job");
 
-  StaticJsonDocument<1024> root;
+  StaticJsonDocument<JSONDOCUMENT_SIZE> root;
   if (!deserializeJson(root, response))
   {
     printJob.printerState = (const char *)root["state"];
@@ -457,8 +475,8 @@ bool OctoprintApi::octoPrintPrintHeadRelativeJog(double x, double y, double z, d
 
 bool OctoprintApi::octoPrintExtrude(double amount)
 {
-  char postData[POSTDATE_SIZE];
-  snprintf(postData, POSTDATE_SIZE, "{ \"command\": \"extrude\", \"amount\": %f }", amount);
+  char postData[POSTDATA_SIZE];
+  snprintf(postData, POSTDATA_SIZE, "{ \"command\": \"extrude\", \"amount\": %f }", amount);
 
   sendPostToOctoPrint("/api/printer/tool", postData);
   return (httpStatusCode == 204);
@@ -466,8 +484,8 @@ bool OctoprintApi::octoPrintExtrude(double amount)
 
 bool OctoprintApi::octoPrintSetBedTemperature(uint16_t t)
 {
-  char postData[POSTDATE_SIZE];
-  snprintf(postData, POSTDATE_SIZE, "{ \"command\": \"target\", \"target\": %d }", t);
+  char postData[POSTDATA_SIZE];
+  snprintf(postData, POSTDATA_SIZE, "{ \"command\": \"target\", \"target\": %d }", t);
 
   sendPostToOctoPrint("/api/printer/bed", postData);
   return (httpStatusCode == 204);
@@ -475,8 +493,8 @@ bool OctoprintApi::octoPrintSetBedTemperature(uint16_t t)
 
 bool OctoprintApi::octoPrintSetTool0Temperature(uint16_t t)
 {
-  char postData[POSTDATE_SIZE];
-  snprintf(postData, POSTDATE_SIZE, "{ \"command\": \"target\", \"targets\": { \"tool0\": %d } }", t);
+  char postData[POSTDATA_SIZE];
+  snprintf(postData, POSTDATA_SIZE, "{ \"command\": \"target\", \"targets\": { \"tool0\": %d } }", t);
 
   sendPostToOctoPrint("/api/printer/tool", postData);
   return (httpStatusCode == 204);
@@ -484,8 +502,8 @@ bool OctoprintApi::octoPrintSetTool0Temperature(uint16_t t)
 
 bool OctoprintApi::octoPrintSetTool1Temperature(uint16_t t)
 {
-  char postData[POSTDATE_SIZE];
-  snprintf(postData, POSTDATE_SIZE, "{ \"command\": \"target\", \"targets\": { \"tool1\": %d } }", t);
+  char postData[POSTDATA_SIZE];
+  snprintf(postData, POSTDATA_SIZE, "{ \"command\": \"target\", \"targets\": { \"tool1\": %d } }", t);
 
   sendPostToOctoPrint("/api/printer/tool", postData);
   return (httpStatusCode == 204);
@@ -504,7 +522,7 @@ bool OctoprintApi::octoPrintGetPrinterBed()
 {
   String response = sendGetToOctoprint("/api/printer/bed?history=true&limit=2");
 
-  StaticJsonDocument<1024> root;
+  StaticJsonDocument<JSONDOCUMENT_SIZE> root;
   if (!deserializeJson(root, response))
   {
     if (root.containsKey("bed"))
@@ -515,7 +533,7 @@ bool OctoprintApi::octoPrintGetPrinterBed()
     }
     if (root.containsKey("history"))
     {
-      // StaticJsonDocument<1024> history;
+      // StaticJsonDocument<JSONDOCUMENT_SIZE> history;
       JsonArray history = root["history"];
       printerBed.printerBedTempHistoryTimestamp = history[0]["time"];
       printerBed.printerBedTempHistoryActual = history[0]["bed"]["actual"];
@@ -558,7 +576,7 @@ bool OctoprintApi::octoPrintGetPrinterSD()
   String command = "/api/printer/sd";
   String response = sendGetToOctoprint(command);
 
-  StaticJsonDocument<1024> root;
+  StaticJsonDocument<JSONDOCUMENT_SIZE> root;
   if (!deserializeJson(root, response))
   {
     bool printerStatesdReady = root["ready"];
@@ -577,10 +595,10 @@ If successful returns a 204 No Content and an empty body.
 bool OctoprintApi::octoPrintPrinterCommand(char *gcodeCommand)
 {
   String command = "/api/printer/command";
-  char postData[50];
+  char postData[POSTDATA_GCODE_SIZE];
 
   postData[0] = '\0';
-  sprintf(postData, "{\"command\": \"%s\"}", gcodeCommand);
+  snprintf(postData, POSTDATA_GCODE_SIZE, "{\"command\": \"%s\"}", gcodeCommand);
 
   sendPostToOctoPrint(command, postData);
 
@@ -592,10 +610,7 @@ bool OctoprintApi::octoPrintPrinterCommand(char *gcodeCommand)
 /**
  * Close the client
  * */
-void OctoprintApi::closeClient()
-{
-  _client->stop();
-}
+void OctoprintApi::closeClient() { _client->stop(); }
 
 /**
  * Extract the HTTP header response code. Used for error reporting - will print in serial monitor any non 200 response codes (i.e. if something has gone wrong!).
