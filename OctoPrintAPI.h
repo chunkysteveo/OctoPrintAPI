@@ -25,10 +25,13 @@ struct printerStatistics
   String printerState;
   bool printerStateclosedOrError;
   bool printerStateerror;
+  bool printerStatefinishing;
   bool printerStateoperational;
   bool printerStatepaused;
+  bool printerStatepausing;
   bool printerStatePrinting;
   bool printerStateready;
+  bool printerStateresuming;
   bool printerStatesdReady;
 
   float printerBedTempActual;
