@@ -224,10 +224,13 @@ bool OctoprintApi::getPrinterStatistics()
       printerStats.printerState = (const char *)root["state"]["text"];
       printerStats.printerStateclosedOrError = root["state"]["flags"]["closedOrError"];
       printerStats.printerStateerror = root["state"]["flags"]["error"];
+      printerStats.printerStatefinishing = root["state"]["flags"]["finishing"];
       printerStats.printerStateoperational = root["state"]["flags"]["operational"];
       printerStats.printerStatepaused = root["state"]["flags"]["paused"];
+      printerStats.printerStatepausing = root["state"]["flags"]["pausing"];
       printerStats.printerStatePrinting = root["state"]["flags"]["printing"];
       printerStats.printerStateready = root["state"]["flags"]["ready"];
+      printerStats.printerStateresuming = root["state"]["flags"]["resuming"];
       printerStats.printerStatesdReady = root["state"]["flags"]["sdReady"];
     }
     
@@ -264,10 +267,10 @@ bool OctoprintApi::getPrinterStatistics()
   }
   else
   {
+    printerStats.printerStateoperational = false;
     if (response == "Printer is not operational")
     {
       printerStats.printerState = response;
-      printerStats.printerStateoperational = false;
       return true;
     }
   }
