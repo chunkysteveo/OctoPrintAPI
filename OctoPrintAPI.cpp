@@ -536,10 +536,8 @@ bool OctoprintApi::octoPrintGetPrinterBed()
     }
     if (root.containsKey("history"))
     {
-      // StaticJsonDocument<JSONDOCUMENT_SIZE> history;
-      JsonArray history = root["history"];
-      printerBed.printerBedTempHistoryTimestamp = history[0]["time"];
-      printerBed.printerBedTempHistoryActual = history[0]["bed"]["actual"];
+      printerBed.printerBedTempHistoryTimestamp = root["history"][0]["time"];
+      printerBed.printerBedTempHistoryActual = root["history"][0]["bed"]["actual"];
     }
     return true;
   }
