@@ -14,14 +14,13 @@
 #include <ArduinoJson.h>
 #include <Client.h>
 
-#define OPAPI_TIMEOUT 3000
-#define POSTDATA_SIZE 256
+#define OPAPI_TIMEOUT       3000
+#define POSTDATA_SIZE       256
 #define POSTDATA_GCODE_SIZE 50
-#define JSONDOCUMENT_SIZE 1024
-#define USER_AGENT "OctoPrintAPI/1.1.4 (Arduino)"
+#define JSONDOCUMENT_SIZE   1024
+#define USER_AGENT          "OctoPrintAPI/1.1.4 (Arduino)"
 
-struct printerStatistics
-{
+struct printerStatistics {
   String printerState;
   bool printerStateclosedOrError;
   bool printerStateerror;
@@ -50,15 +49,12 @@ struct printerStatistics
   bool printerTool1Available;
 };
 
-struct octoprintVersion
-{
+struct octoprintVersion {
   String octoprintApi;
   String octoprintServer;
 };
 
-struct printJobCall
-{
-
+struct printJobCall {
   String printerState;
   long estimatedPrintTime;
 
@@ -71,6 +67,7 @@ struct printJobCall
   long progressFilepos;
   long progressPrintTime;
   long progressPrintTimeLeft;
+  String progressprintTimeLeftOrigin;
 
   long jobFilamentTool0Length;
   float jobFilamentTool0Volume;
@@ -78,8 +75,7 @@ struct printJobCall
   float jobFilamentTool1Volume;
 };
 
-struct printerBedCall
-{
+struct printerBedCall {
   float printerBedTempActual;
   float printerBedTempOffset;
   float printerBedTempTarget;
@@ -87,9 +83,8 @@ struct printerBedCall
   float printerBedTempHistoryActual;
 };
 
-class OctoprintApi
-{
-public:
+class OctoprintApi {
+ public:
   OctoprintApi(Client &client, IPAddress octoPrintIp, int octoPrintPort, String apiKey);
   OctoprintApi(Client &client, char *octoPrintUrl, int octoPrintPort, String apiKey);
   String sendGetToOctoprint(String command);
@@ -100,8 +95,8 @@ public:
   octoprintVersion octoprintVer;
   bool getPrintJob();
   printJobCall printJob;
-  bool _debug = false;
-  int httpStatusCode = 0;
+  bool _debug          = false;
+  int httpStatusCode   = 0;
   String httpErrorBody = "";
   String sendPostToOctoPrint(String command, const char *postData);
   bool octoPrintConnectionDisconnect();
@@ -132,7 +127,7 @@ public:
 
   bool octoPrintPrinterCommand(char *gcodeCommand);
 
-private:
+ private:
   Client *_client;
   String _apiKey;
   IPAddress _octoPrintIp;
