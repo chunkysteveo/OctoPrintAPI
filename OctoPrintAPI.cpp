@@ -489,9 +489,9 @@ If successful returns a 204 No Content and an empty body.
 */
 bool OctoprintApi::octoPrintPrinterCommand(const char *gcodeCommand) {
   String command = "/api/printer/command";
-  char postData[POSTDATA_GCODE_SIZE];
+  char postData[POSTDATA_SIZE];
 
-  snprintf(postData, POSTDATA_GCODE_SIZE, "{\"command\": \"%s\"}", gcodeCommand);
+  snprintf(postData, POSTDATA_SIZE, "{\"command\": \"%s\"}", gcodeCommand);
   sendPostToOctoPrint(command, postData);
 
   return (httpStatusCode == 204);

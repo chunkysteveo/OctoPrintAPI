@@ -17,9 +17,8 @@
 #define OPAPI_TIMEOUT     3000  // 3s timetout
 #define OPAPI_RUN_TIMEOUT (millis() - start_waiting < OPAPI_TIMEOUT && start_waiting <= millis())
 
-#define POSTDATA_SIZE       256
+#define POSTDATA_SIZE       128
 #define TEMPDATA_SIZE       24
-#define POSTDATA_GCODE_SIZE 50
 #define JSONDOCUMENT_SIZE   1024
 #define USER_AGENT          "OctoPrintAPI/1.1.4 (Arduino)"
 #define USER_AGENT_SIZE     64
