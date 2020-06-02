@@ -39,18 +39,16 @@ OctoprintApi::OctoprintApi(Client &client, char *octoPrintUrl, uint16_t octoPrin
  *
  * **/
 String OctoprintApi::sendRequestToOctoprint(String type, String command, const char *data) {
-  if (_debug)
-    Serial.println("OctoprintApi::sendRequestToOctoprint() CALLED");
+  if (_debug) Serial.println("OctoprintApi::sendRequestToOctoprint() CALLED");
 
   if ((type != "GET") && (type != "POST")) {
-    if (_debug)
-      Serial.println("OctoprintApi::sendRequestToOctoprint() Only GET & POST are supported... exiting.");
+    if (_debug) Serial.println("OctoprintApi::sendRequestToOctoprint() Only GET & POST are supported... exiting.");
     return "";
   }
 
   String buffer               = "";
   char c                      = 0;
-  long bodySize               = -1;
+  uint32_t bodySize           = 0;
   unsigned long start_waiting = 0;
   bool connected              = false;
 
@@ -107,7 +105,7 @@ String OctoprintApi::sendRequestToOctoprint(String type, String command, const c
       buffer = "";
     }
   }
-  if (bodySize <= 0) {
+  if (!bodySize) {
     if (_debug) Serial.println("Header 'Content-Length' not found");
     closeClient();
     return "";
@@ -123,8 +121,7 @@ String OctoprintApi::sendRequestToOctoprint(String type, String command, const c
 }
 
 String OctoprintApi::sendGetToOctoprint(String command) {
-  if (_debug)
-    Serial.println("OctoprintApi::sendGetToOctoprint() CALLED");
+  if (_debug) Serial.println("OctoprintApi::sendGetToOctoprint() CALLED");
 
   return sendRequestToOctoprint("GET", command, NULL);
 }
@@ -271,7 +268,7 @@ bool OctoprintApi::getPrintJob() {
       printJob.jobFileDate   = root["job"]["file"]["date"];
       printJob.jobFileName   = (const char *)(root["job"]["file"]["name"] | "");
       printJob.jobFileOrigin = (const char *)(root["job"]["file"]["origin"] | "");
-      printJob.jobFileSize   = root["job"]["file"]["size"];
+      printJob.jobFileSize   = root["job"]["file"]["size"] | 0;
 
       printJob.jobFilamentTool0Length = root["job"]["filament"]["tool0"]["length"] | 0;
       printJob.jobFilamentTool0Volume = root["job"]["filament"]["tool0"]["volume"] | 0.0;
@@ -280,9 +277,9 @@ bool OctoprintApi::getPrintJob() {
     }
     if (root.containsKey("progress")) {
       printJob.progressCompletion          = root["progress"]["completion"] | 0.0;
-      printJob.progressFilepos             = root["progress"]["filepos"];
-      printJob.progressPrintTime           = root["progress"]["printTime"];
-      printJob.progressPrintTimeLeft       = root["progress"]["printTimeLeft"];
+      printJob.progressFilepos             = root["progress"]["filepos"] | 0;
+      printJob.progressPrintTime           = root["progress"]["printTime"] | 0;
+      printJob.progressPrintTimeLeft       = root["progress"]["printTimeLeft"] | 0;
       printJob.progressprintTimeLeftOrigin = (const char *)root["progress"]["printTimeLeftOrigin"];
     }
     return true;
@@ -294,8 +291,7 @@ bool OctoprintApi::getPrintJob() {
  * General function to get any GET endpoint of the API and return body as a string for you to format or view as you wish.
  * */
 String OctoprintApi::getOctoprintEndpointResults(String command) {
-  if (_debug)
-    Serial.println("OctoprintApi::getOctoprintEndpointResults() CALLED");
+  if (_debug) Serial.println("OctoprintApi::getOctoprintEndpointResults() CALLED");
   return sendGetToOctoprint("/api/" + command);
 }
 
@@ -303,8 +299,7 @@ String OctoprintApi::getOctoprintEndpointResults(String command) {
  *
  * **/
 String OctoprintApi::sendPostToOctoPrint(String command, const char *postData) {
-  if (_debug)
-    Serial.println("OctoprintApi::sendPostToOctoPrint() CALLED");
+  if (_debug) Serial.println("OctoprintApi::sendPostToOctoPrint() CALLED");
   return sendRequestToOctoprint("POST", command, postData);
 }
 
@@ -377,8 +372,6 @@ bool OctoprintApi::octoPrintPrintHeadRelativeJog(double x, double y, double z, d
   }
   strncat(postData, ", \"absolute\": false", TEMPDATA_SIZE);
   strncat(postData, " }", TEMPDATA_SIZE);
-  if (_debug)
-    Serial.println(postData);
 
   sendPostToOctoPrint("/api/printer/printhead", postData);
   return (httpStatusCode == 204);
@@ -533,7 +526,6 @@ void OctoprintApi::sendHeader(const String type, const String command, const cha
   _client->print("X-Api-Key: ");
   _client->println(_apiKey);
   _client->println(_useragent);
-  _client->println("Connection: keep-alive");
   if (data != NULL) {
     _client->println("Content-Type: application/json");
     _client->print("Content-Length: ");
