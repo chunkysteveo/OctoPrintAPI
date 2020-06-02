@@ -362,22 +362,22 @@ bool OctoprintApi::octoPrintPrintHeadRelativeJog(double x, double y, double z, d
   strncat(postData, "{\"command\": \"jog\"", POSTDATA_SIZE);
   if (x != 0) {
     snprintf(tmp, TEMPDATA_SIZE, ", \"x\": %f", x);
-    strcat(postData, tmp);
+    strncat(postData, tmp, TEMPDATA_SIZE);
   }
   if (y != 0) {
     snprintf(tmp, TEMPDATA_SIZE, ", \"y\": %f", y);
-    strcat(postData, tmp);
+    strncat(postData, tmp, TEMPDATA_SIZE);
   }
   if (z != 0) {
     snprintf(tmp, TEMPDATA_SIZE, ", \"z\": %f", z);
-    strcat(postData, tmp);
+    strncat(postData, tmp, TEMPDATA_SIZE);
   }
   if (f != 0) {
     snprintf(tmp, TEMPDATA_SIZE, ", \"speed\": %f", f);
-    strcat(postData, tmp);
+    strncat(postData, tmp, TEMPDATA_SIZE);
   }
-  strcat(postData, ", \"absolute\": false");
-  strcat(postData, " }");
+  strncat(postData, ", \"absolute\": false", TEMPDATA_SIZE);
+  strncat(postData, " }", TEMPDATA_SIZE);
   if (_debug)
     Serial.println(postData);
 

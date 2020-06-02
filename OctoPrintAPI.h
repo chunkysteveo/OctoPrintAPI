@@ -18,7 +18,7 @@
 #define OPAPI_RUN_TIMEOUT (millis() - start_waiting < OPAPI_TIMEOUT && start_waiting <= millis())
 
 #define POSTDATA_SIZE       256
-#define TEMPDATA_SIZE       32
+#define TEMPDATA_SIZE       24
 #define POSTDATA_GCODE_SIZE 50
 #define JSONDOCUMENT_SIZE   1024
 #define USER_AGENT          "OctoPrintAPI/1.1.4 (Arduino)"
@@ -101,7 +101,7 @@ class OctoprintApi {
   printJobCall printJob;
   bool _debug          = false;
   int httpStatusCode   = 0;
-  String httpErrorBody = "";
+
   String sendPostToOctoPrint(String command, const char *postData);
   bool octoPrintConnectionDisconnect();
   bool octoPrintConnectionAutoConnect();
@@ -139,7 +139,7 @@ class OctoprintApi {
   char *_octoPrintUrl;
   int _octoPrintPort;
   char _useragent[USER_AGENT_SIZE];
-  const int maxMessageLength = 1000;
+  
   void closeClient();
   void sendHeader(const String type, const String command, const char *data);
   int extractHttpCode(String statusCode);
