@@ -14,11 +14,15 @@
 #include <ArduinoJson.h>
 #include <Client.h>
 
-#define OPAPI_TIMEOUT       3000
+#define OPAPI_TIMEOUT     3000  // 3s timetout
+#define OPAPI_RUN_TIMEOUT (millis() - start_waiting < OPAPI_TIMEOUT && start_waiting <= millis())
+
 #define POSTDATA_SIZE       256
+#define TEMPDATA_SIZE       32
 #define POSTDATA_GCODE_SIZE 50
 #define JSONDOCUMENT_SIZE   1024
 #define USER_AGENT          "OctoPrintAPI/1.1.4 (Arduino)"
+#define USER_AGENT_SIZE     64
 
 struct printerStatistics {
   String printerState;
@@ -134,10 +138,12 @@ class OctoprintApi {
   bool _usingIpAddress;
   char *_octoPrintUrl;
   int _octoPrintPort;
+  char _useragent[USER_AGENT_SIZE];
   const int maxMessageLength = 1000;
   void closeClient();
+  void sendHeader(const String type, const String command, const char *data);
   int extractHttpCode(String statusCode);
-  String sendRequestToOctoprint(String type, String command, const char *data);
+  String sendRequestToOctoprint(const String type, const String command, const char *data);
 };
 
 #endif

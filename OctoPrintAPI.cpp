@@ -20,6 +20,7 @@ OctoprintApi::OctoprintApi(Client &client, IPAddress octoPrintIp, int octoPrintP
   _octoPrintIp    = octoPrintIp;
   _octoPrintPort  = octoPrintPort;
   _usingIpAddress = true;
+  snprintf(_useragent, USER_AGENT_SIZE, "User-Agent: %s", USER_AGENT);
 }
 
 /** OctoprintApi()
@@ -31,6 +32,7 @@ OctoprintApi::OctoprintApi(Client &client, char *octoPrintUrl, int octoPrintPort
   _octoPrintUrl   = octoPrintUrl;
   _octoPrintPort  = octoPrintPort;
   _usingIpAddress = false;
+  snprintf(_useragent, USER_AGENT_SIZE, "User-Agent: %s", USER_AGENT);
 }
 
 /** GET YOUR ASS TO OCTOPRINT...
@@ -46,119 +48,78 @@ String OctoprintApi::sendRequestToOctoprint(String type, String command, const c
     return "";
   }
 
-  String statusCode       = "";
-  String headers          = "";
-  String body             = "";
-  bool finishedStatusCode = false;
-  bool finishedHeaders    = false;
-  bool currentLineIsBlank = true;
-  int ch_count            = 0;
-  int headerCount         = 0;
-  int headerLineStart     = 0;
-  int bodySize            = -1;
-  unsigned long now;
-
-  bool connected;
+  String buffer               = "";
+  char c                      = 0;
+  long bodySize               = -1;
+  unsigned long start_waiting = 0;
+  bool connected              = false;
 
   if (_usingIpAddress)
     connected = _client->connect(_octoPrintIp, _octoPrintPort);
   else
     connected = _client->connect(_octoPrintUrl, _octoPrintPort);
 
-  if (connected) {
-    if (_debug)
-      Serial.println(".... connected to server");
+  if (!connected) {
+    if (_debug) Serial.println("connection failed.");
+    closeClient();
+    return "";
+  }
+  if (_debug) Serial.println("...connected to server.");
 
-    char useragent[64];
-    snprintf(useragent, 64, "User-Agent: %s", USER_AGENT);
+  sendHeader(type, command, data);
 
-    _client->println(type + " " + command + " HTTP/1.1");
-    _client->print("Host: ");
-    if (_usingIpAddress)
-      _client->println(_octoPrintIp);
-    else
-      _client->println(_octoPrintUrl);
-    _client->print("X-Api-Key: ");
-    _client->println(_apiKey);
-    _client->println(useragent);
-    _client->println("Connection: keep-alive");
-    if (data != NULL) {
-      _client->println("Content-Type: application/json");
-      _client->print("Content-Length: ");
-      _client->println(strlen(data));  // number of bytes in the payload
-      _client->println();              // important need an empty line here
-      _client->println(data);          // the payload
-    } else
-      _client->println();
+  start_waiting = millis();
+  if (_debug) Serial.println("Request sent. Waiting for the answer.");
 
-    now = millis();
-    if (_debug) {
-      Serial.print("Request sent. Waiting for the answer:");
-      Serial.println(now);
-    }
-    while (millis() - now < OPAPI_TIMEOUT || now < millis()) {
-      while (_client->available()) {
-        char c = _client->read();
+  while (!_client->available() && OPAPI_RUN_TIMEOUT)  // wait for a reply
+    delay(1);
+  if (!_client->available()) {
+    if (_debug) Serial.println("Timeout during waiting for a reply");
+    closeClient();
+    return "";
+  }
 
-        if (_debug)
-          Serial.print(c);
+  // Read Status code
+  if (_debug) Serial.println("Reading status code");
+  while (_client->available() && (c = _client->read()) != '\n' && OPAPI_RUN_TIMEOUT)
+    buffer = buffer + c;
 
-        if (!finishedStatusCode) {
-          if (c == '\n')
-            finishedStatusCode = true;
-          else
-            statusCode = statusCode + c;
-        }
-
-        if (!finishedHeaders) {
-          if (c == '\n') {
-            if (currentLineIsBlank)
-              finishedHeaders = true;
-            else {
-              if (headers.substring(headerLineStart).startsWith("Content-Length: "))
-                bodySize = (headers.substring(headerLineStart + 16)).toInt();
-              headers = headers + c;
-              headerCount++;
-              headerLineStart = headerCount;
-            }
-          } else {
-            headers = headers + c;
-            headerCount++;
-          }
-        } else {
-          if (ch_count < maxMessageLength) {
-            body = body + c;
-            ch_count++;
-            if (ch_count == bodySize)
-              break;
-          }
-        }
-        if (c == '\n')
-          currentLineIsBlank = true;
-        else if (c != '\r') {
-          currentLineIsBlank = false;
-        }
-      }
-      if (ch_count == bodySize)
+  httpStatusCode = extractHttpCode(buffer);
+  if (_debug) {
+    Serial.print("httpCode:");
+    Serial.println(httpStatusCode);
+  }
+  if (!(200 <= httpStatusCode && httpStatusCode <= 204) && httpStatusCode != 409) {
+    closeClient();
+    return "";
+  }
+  // Read headers
+  if (_debug) Serial.println("Reading headers");
+  for (buffer = ""; _client->available() && OPAPI_RUN_TIMEOUT;) {  // read headers
+    c      = _client->read();
+    buffer = buffer + c;
+    if (_debug) Serial.print(c);
+    if (c == '\n') {
+      if (buffer.startsWith("Content-Length: "))
+        bodySize = buffer.substring(16).toInt();
+      else if (buffer == "\n" || buffer == "\r\n")
         break;
-    }
-  } else {
-    if (_debug) {
-      Serial.println("connection failed");
-      Serial.println(connected);
+      buffer = "";
     }
   }
+  if (bodySize <= 0) {
+    if (_debug) Serial.println("Header 'Content-Length' not found");
+    closeClient();
+    return "";
+  }
+
+  if (_debug) Serial.println("Reading body");
+  for (buffer = ""; _client->available() && bodySize-- && OPAPI_RUN_TIMEOUT;)
+    buffer = buffer + (char)_client->read();
+  if (_debug) Serial.println(buffer);
 
   closeClient();
-
-  int httpCode = extractHttpCode(statusCode);
-  if (_debug) {
-    Serial.print("\nhttpCode:");
-    Serial.println(httpCode);
-  }
-  httpStatusCode = httpCode;
-
-  return body;
+  return buffer;
 }
 
 String OctoprintApi::sendGetToOctoprint(String command) {
@@ -394,25 +355,25 @@ bool OctoprintApi::octoPrintPrintHeadRelativeJog(double x, double y, double z, d
   // "absolute": false,
   // "speed": 30
   // }
-  char postData[1024];
-  char tmp[128];
+  char postData[POSTDATA_SIZE];
+  char tmp[TEMPDATA_SIZE];
   postData[0] = '\0';
 
-  strcat(postData, "{\"command\": \"jog\"");
+  strncat(postData, "{\"command\": \"jog\"", POSTDATA_SIZE);
   if (x != 0) {
-    snprintf(tmp, 128, ", \"x\": %f", x);
+    snprintf(tmp, TEMPDATA_SIZE, ", \"x\": %f", x);
     strcat(postData, tmp);
   }
   if (y != 0) {
-    snprintf(tmp, 128, ", \"y\": %f", y);
+    snprintf(tmp, TEMPDATA_SIZE, ", \"y\": %f", y);
     strcat(postData, tmp);
   }
   if (z != 0) {
-    snprintf(tmp, 128, ", \"z\": %f", z);
+    snprintf(tmp, TEMPDATA_SIZE, ", \"z\": %f", z);
     strcat(postData, tmp);
   }
   if (f != 0) {
-    snprintf(tmp, 128, ", \"speed\": %f", f);
+    snprintf(tmp, TEMPDATA_SIZE, ", \"speed\": %f", f);
     strcat(postData, tmp);
   }
   strcat(postData, ", \"absolute\": false");
@@ -561,4 +522,28 @@ int OctoprintApi::extractHttpCode(String statusCode) {  // HTTP/1.1 200 OK  || H
   int statusCodeInt    = statusExtract.substring(0, statusExtract.indexOf(" ")).toInt();  // 200 || 400
 
   return statusCodeInt ? statusCodeInt : -1;
+}
+
+/** 
+ * Send HTTP Headers
+ * */
+void OctoprintApi::sendHeader(const String type, const String command, const char *data) {
+  _client->println(type + " " + command + " HTTP/1.1");
+  _client->print("Host: ");
+  if (_usingIpAddress)
+    _client->println(_octoPrintIp);
+  else
+    _client->println(_octoPrintUrl);
+  _client->print("X-Api-Key: ");
+  _client->println(_apiKey);
+  _client->println(_useragent);
+  _client->println("Connection: keep-alive");
+  if (data != NULL) {
+    _client->println("Content-Type: application/json");
+    _client->print("Content-Length: ");
+    _client->println(strlen(data));  // number of bytes in the payload
+    _client->println();              // important need an empty line here
+    _client->println(data);          // the payload
+  } else
+    _client->println();
 }
