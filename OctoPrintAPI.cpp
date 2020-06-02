@@ -551,20 +551,14 @@ void OctoprintApi::closeClient() { _client->stop(); }
  * Extract the HTTP header response code. Used for error reporting - will print in serial monitor any non 200 response codes (i.e. if something has gone wrong!).
  * Thanks Brian for the start of this function, and the chuckle of watching you realise on a live stream that I didn't use the response code at that time! :)
  * */
-int OctoprintApi::extractHttpCode(String statusCode) {
+int OctoprintApi::extractHttpCode(String statusCode) {  // HTTP/1.1 200 OK  || HTTP/1.1 400 BAD REQUEST
   if (_debug) {
     Serial.print("\nStatus code to extract: ");
     Serial.println(statusCode);
   }
-  int firstSpace = statusCode.indexOf(" ");
-  int lastSpace  = statusCode.lastIndexOf(" ");
-  if (firstSpace > -1 && lastSpace > -1 && firstSpace != lastSpace) {
-    String statusCodeALL     = statusCode.substring(firstSpace + 1);             //"400 BAD REQUEST"
-    String statusCodeExtract = statusCode.substring(firstSpace + 1, lastSpace);  //May end up being e.g. "400 BAD"
-    int statusCodeInt        = statusCodeExtract.toInt();                        //Converts to "400" integer - i.e. strips out rest of text characters "fix"
-    if (_debug and statusCodeInt != 200 and statusCodeInt != 201 and statusCodeInt != 202 and statusCodeInt != 204)
-      Serial.print("\nSERVER RESPONSE CODE: " + String(statusCodeALL));
-    return statusCodeInt;
-  } else
-    return -1;
+
+  String statusExtract = statusCode.substring(statusCode.indexOf(" ") + 1);               // 200 OK || 400 BAD REQUEST
+  int statusCodeInt    = statusExtract.substring(0, statusExtract.indexOf(" ")).toInt();  // 200 || 400
+
+  return statusCodeInt ? statusCodeInt : -1;
 }
