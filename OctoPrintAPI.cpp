@@ -14,7 +14,7 @@
 /** OctoprintApi()
  * IP address version of the client connect function
  * */
-OctoprintApi::OctoprintApi(Client &client, IPAddress octoPrintIp, int octoPrintPort, String apiKey) {
+OctoprintApi::OctoprintApi(Client &client, IPAddress octoPrintIp, uint16_t octoPrintPort, String apiKey) {
   _client         = &client;
   _apiKey         = apiKey;
   _octoPrintIp    = octoPrintIp;
@@ -26,7 +26,7 @@ OctoprintApi::OctoprintApi(Client &client, IPAddress octoPrintIp, int octoPrintP
 /** OctoprintApi()
  * Hostname version of the client connect function
  * */
-OctoprintApi::OctoprintApi(Client &client, char *octoPrintUrl, int octoPrintPort, String apiKey) {
+OctoprintApi::OctoprintApi(Client &client, char *octoPrintUrl, uint16_t octoPrintPort, String apiKey) {
   _client         = &client;
   _apiKey         = apiKey;
   _octoPrintUrl   = octoPrintUrl;
@@ -89,7 +89,7 @@ String OctoprintApi::sendRequestToOctoprint(String type, String command, const c
     Serial.print("httpCode:");
     Serial.println(httpStatusCode);
   }
-  if (!(200 <= httpStatusCode && httpStatusCode <= 204) && httpStatusCode != 409) {
+  if (!(200 <= httpStatusCode && httpStatusCode < 204) && httpStatusCode != 409) {  // Code 204 NO CONTENT is ok, we close and return
     closeClient();
     return "";
   }
@@ -357,23 +357,22 @@ bool OctoprintApi::octoPrintPrintHeadRelativeJog(double x, double y, double z, d
   // }
   char postData[POSTDATA_SIZE];
   char tmp[TEMPDATA_SIZE];
-  postData[0] = '\0';
 
-  strncat(postData, "{\"command\": \"jog\"", POSTDATA_SIZE);
+  strncpy(postData, "{\"command\": \"jog\"", POSTDATA_SIZE);
   if (x != 0) {
-    snprintf(tmp, TEMPDATA_SIZE, ", \"x\": %f", x);
+    snprintf(tmp, TEMPDATA_SIZE, ", \"x\": %.2f", x);
     strncat(postData, tmp, TEMPDATA_SIZE);
   }
   if (y != 0) {
-    snprintf(tmp, TEMPDATA_SIZE, ", \"y\": %f", y);
+    snprintf(tmp, TEMPDATA_SIZE, ", \"y\": %.2f", y);
     strncat(postData, tmp, TEMPDATA_SIZE);
   }
   if (z != 0) {
-    snprintf(tmp, TEMPDATA_SIZE, ", \"z\": %f", z);
+    snprintf(tmp, TEMPDATA_SIZE, ", \"z\": %.2f", z);
     strncat(postData, tmp, TEMPDATA_SIZE);
   }
   if (f != 0) {
-    snprintf(tmp, TEMPDATA_SIZE, ", \"speed\": %f", f);
+    snprintf(tmp, TEMPDATA_SIZE, ", \"speed\": %.2f", f);
     strncat(postData, tmp, TEMPDATA_SIZE);
   }
   strncat(postData, ", \"absolute\": false", TEMPDATA_SIZE);
@@ -387,7 +386,7 @@ bool OctoprintApi::octoPrintPrintHeadRelativeJog(double x, double y, double z, d
 
 bool OctoprintApi::octoPrintExtrude(double amount) {
   char postData[POSTDATA_SIZE];
-  snprintf(postData, POSTDATA_SIZE, "{ \"command\": \"extrude\", \"amount\": %f }", amount);
+  snprintf(postData, POSTDATA_SIZE, "{ \"command\": \"extrude\", \"amount\": %.2f }", amount);
 
   sendPostToOctoPrint("/api/printer/tool", postData);
   return (httpStatusCode == 204);
@@ -476,8 +475,7 @@ bool OctoprintApi::octoPrintGetPrinterSD() {
 
   StaticJsonDocument<JSONDOCUMENT_SIZE> root;
   if (!deserializeJson(root, response)) {
-    bool printerStatesdReady         = root["ready"];
-    printerStats.printerStatesdReady = printerStatesdReady;
+    printerStats.printerStatesdReady = root["ready"];
     return true;
   }
   return false;
@@ -489,13 +487,11 @@ http://docs.octoprint.org/en/master/api/printer.html#send-an-arbitrary-command-t
 Sends any command to the printer via the serial interface. Should be used with some care as some commands can interfere with or even stop a running print job.
 If successful returns a 204 No Content and an empty body.
 */
-bool OctoprintApi::octoPrintPrinterCommand(char *gcodeCommand) {
+bool OctoprintApi::octoPrintPrinterCommand(const char *gcodeCommand) {
   String command = "/api/printer/command";
   char postData[POSTDATA_GCODE_SIZE];
 
-  postData[0] = '\0';
   snprintf(postData, POSTDATA_GCODE_SIZE, "{\"command\": \"%s\"}", gcodeCommand);
-
   sendPostToOctoPrint(command, postData);
 
   return (httpStatusCode == 204);
@@ -512,9 +508,9 @@ void OctoprintApi::closeClient() { _client->stop(); }
  * Extract the HTTP header response code. Used for error reporting - will print in serial monitor any non 200 response codes (i.e. if something has gone wrong!).
  * Thanks Brian for the start of this function, and the chuckle of watching you realise on a live stream that I didn't use the response code at that time! :)
  * */
-int OctoprintApi::extractHttpCode(String statusCode) {  // HTTP/1.1 200 OK  || HTTP/1.1 400 BAD REQUEST
+int OctoprintApi::extractHttpCode(const String statusCode) {  // HTTP/1.1 200 OK  || HTTP/1.1 400 BAD REQUEST
   if (_debug) {
-    Serial.print("\nStatus code to extract: ");
+    Serial.print("Status code to extract: ");
     Serial.println(statusCode);
   }
 

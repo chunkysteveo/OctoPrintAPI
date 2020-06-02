@@ -89,8 +89,8 @@ struct printerBedCall {
 
 class OctoprintApi {
  public:
-  OctoprintApi(Client &client, IPAddress octoPrintIp, int octoPrintPort, String apiKey);
-  OctoprintApi(Client &client, char *octoPrintUrl, int octoPrintPort, String apiKey);
+  OctoprintApi(Client &client, IPAddress octoPrintIp, uint16_t octoPrintPort, String apiKey);
+  OctoprintApi(Client &client, char *octoPrintUrl, uint16_t octoPrintPort, String apiKey);
   String sendGetToOctoprint(String command);
   String getOctoprintEndpointResults(String command);
   bool getPrinterStatistics();
@@ -99,8 +99,8 @@ class OctoprintApi {
   octoprintVersion octoprintVer;
   bool getPrintJob();
   printJobCall printJob;
-  bool _debug          = false;
-  int httpStatusCode   = 0;
+  bool _debug             = false;
+  uint16_t httpStatusCode = 0;
 
   String sendPostToOctoPrint(String command, const char *postData);
   bool octoPrintConnectionDisconnect();
@@ -129,7 +129,7 @@ class OctoprintApi {
   bool octoPrintJobResume();
   bool octoPrintFileSelect(String &path);
 
-  bool octoPrintPrinterCommand(char *gcodeCommand);
+  bool octoPrintPrinterCommand(const char *gcodeCommand);
 
  private:
   Client *_client;
@@ -137,12 +137,12 @@ class OctoprintApi {
   IPAddress _octoPrintIp;
   bool _usingIpAddress;
   char *_octoPrintUrl;
-  int _octoPrintPort;
+  uint16_t _octoPrintPort;
   char _useragent[USER_AGENT_SIZE];
-  
+
   void closeClient();
   void sendHeader(const String type, const String command, const char *data);
-  int extractHttpCode(String statusCode);
+  int extractHttpCode(const String statusCode);
   String sendRequestToOctoprint(const String type, const String command, const char *data);
 };
 
