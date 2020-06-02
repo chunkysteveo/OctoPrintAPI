@@ -92,7 +92,11 @@ String OctoprintApi::sendRequestToOctoprint(String type, String command, const c
       _client->println();
 
     now = millis();
-    while (millis() - now < OPAPI_TIMEOUT) {
+    if (_debug) {
+      Serial.print("Request sent. Waiting for the answer:");
+      Serial.println(now);
+    }
+    while (millis() - now < OPAPI_TIMEOUT || now < millis()) {
       while (_client->available()) {
         char c = _client->read();
 
@@ -147,7 +151,7 @@ String OctoprintApi::sendRequestToOctoprint(String type, String command, const c
 
   closeClient();
 
-  int httpCode = extractHttpCode(statusCode, body);
+  int httpCode = extractHttpCode(statusCode);
   if (_debug) {
     Serial.print("\nhttpCode:");
     Serial.println(httpCode);
@@ -547,7 +551,7 @@ void OctoprintApi::closeClient() { _client->stop(); }
  * Extract the HTTP header response code. Used for error reporting - will print in serial monitor any non 200 response codes (i.e. if something has gone wrong!).
  * Thanks Brian for the start of this function, and the chuckle of watching you realise on a live stream that I didn't use the response code at that time! :)
  * */
-int OctoprintApi::extractHttpCode(String statusCode, String body) {
+int OctoprintApi::extractHttpCode(String statusCode) {
   if (_debug) {
     Serial.print("\nStatus code to extract: ");
     Serial.println(statusCode);
@@ -558,13 +562,8 @@ int OctoprintApi::extractHttpCode(String statusCode, String body) {
     String statusCodeALL     = statusCode.substring(firstSpace + 1);             //"400 BAD REQUEST"
     String statusCodeExtract = statusCode.substring(firstSpace + 1, lastSpace);  //May end up being e.g. "400 BAD"
     int statusCodeInt        = statusCodeExtract.toInt();                        //Converts to "400" integer - i.e. strips out rest of text characters "fix"
-    if (_debug and statusCodeInt != 200 and statusCodeInt != 201 and statusCodeInt != 202 and statusCodeInt != 204) {
+    if (_debug and statusCodeInt != 200 and statusCodeInt != 201 and statusCodeInt != 202 and statusCodeInt != 204)
       Serial.print("\nSERVER RESPONSE CODE: " + String(statusCodeALL));
-      if (body != "")
-        Serial.println(" - " + body);
-      else
-        Serial.println();
-    }
     return statusCodeInt;
   } else
     return -1;

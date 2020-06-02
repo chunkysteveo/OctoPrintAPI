@@ -136,7 +136,7 @@ class OctoprintApi {
   int _octoPrintPort;
   const int maxMessageLength = 1000;
   void closeClient();
-  int extractHttpCode(String statusCode, String body);
+  int extractHttpCode(String statusCode);
   String sendRequestToOctoprint(String type, String command, const char *data);
 };
 
