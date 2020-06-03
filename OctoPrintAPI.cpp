@@ -4,7 +4,6 @@
  | |_| | (__| || (_) |  __/| |  | | | | | |_ / ___ \|  __/| |
   \___/ \___|\__\___/|_|   |_|  |_|_| |_|\__/_/   \_\_|  |___|
 .......By Stephen Ludgate https://www.chunkymedia.co.uk.......
-
 */
 
 #include "OctoPrintAPI.h"
@@ -13,7 +12,7 @@
 
 /** OctoprintApi()
  * IP address version of the client connect function
- * */
+ **/
 OctoprintApi::OctoprintApi(Client &client, IPAddress octoPrintIp, uint16_t octoPrintPort, String apiKey) {
   _client         = &client;
   _apiKey         = apiKey;
@@ -25,7 +24,7 @@ OctoprintApi::OctoprintApi(Client &client, IPAddress octoPrintIp, uint16_t octoP
 
 /** OctoprintApi()
  * Hostname version of the client connect function
- * */
+ **/
 OctoprintApi::OctoprintApi(Client &client, char *octoPrintUrl, uint16_t octoPrintPort, String apiKey) {
   _client         = &client;
   _apiKey         = apiKey;
@@ -35,9 +34,8 @@ OctoprintApi::OctoprintApi(Client &client, char *octoPrintUrl, uint16_t octoPrin
   snprintf(_useragent, USER_AGENT_SIZE, "User-Agent: %s", USER_AGENT);
 }
 
-/** GET YOUR ASS TO OCTOPRINT...
- *
- * **/
+/* GET YOUR ASS TO OCTOPRINT...
+ */
 String OctoprintApi::sendRequestToOctoprint(String type, String command, const char *data) {
   if (_debug) Serial.println("OctoprintApi::sendRequestToOctoprint() CALLED");
 
@@ -50,14 +48,13 @@ String OctoprintApi::sendRequestToOctoprint(String type, String command, const c
   char c                      = 0;
   uint32_t bodySize           = 0;
   unsigned long start_waiting = 0;
-  bool connected              = false;
 
   if (_usingIpAddress)
-    connected = _client->connect(_octoPrintIp, _octoPrintPort);
+    _client->connect(_octoPrintIp, _octoPrintPort);
   else
-    connected = _client->connect(_octoPrintUrl, _octoPrintPort);
+    _client->connect(_octoPrintUrl, _octoPrintPort);
 
-  if (!connected) {
+  if (!_client->connected()) {
     if (_debug) Serial.println("connection failed.");
     closeClient();
     return "";
@@ -66,34 +63,32 @@ String OctoprintApi::sendRequestToOctoprint(String type, String command, const c
 
   sendHeader(type, command, data);
 
-  start_waiting = millis();
   if (_debug) Serial.println("Request sent. Waiting for the answer.");
-
-  while (!_client->available() && OPAPI_RUN_TIMEOUT)  // wait for a reply
+  start_waiting = millis();
+  while (_client->connected() && !_client->available() && OPAPI_RUN_TIMEOUT)  // wait for a reply
     delay(1);
-  if (!_client->available()) {
+  if (!_client->connected() || !_client->available()) {
     if (_debug) Serial.println("Timeout during waiting for a reply");
     closeClient();
     return "";
   }
 
-  // Read Status code
   if (_debug) Serial.println("Reading status code");
-  while (_client->available() && (c = _client->read()) != '\n' && OPAPI_RUN_TIMEOUT)
+  while (_client->connected() && _client->available() && (c = _client->read()) != '\n' && OPAPI_RUN_TIMEOUT)
     buffer = buffer + c;
 
   httpStatusCode = extractHttpCode(buffer);
   if (_debug) {
-    Serial.print("httpCode:");
+    Serial.print("HTTP code:");
     Serial.println(httpStatusCode);
   }
   if (!(200 <= httpStatusCode && httpStatusCode < 204) && httpStatusCode != 409) {  // Code 204 NO CONTENT is ok, we close and return
     closeClient();
     return "";
   }
-  // Read headers
+
   if (_debug) Serial.println("Reading headers");
-  for (buffer = ""; _client->available() && OPAPI_RUN_TIMEOUT;) {  // read headers
+  for (buffer = ""; _client->connected() && _client->available() && OPAPI_RUN_TIMEOUT;) {
     c      = _client->read();
     buffer = buffer + c;
     if (_debug) Serial.print(c);
@@ -105,14 +100,9 @@ String OctoprintApi::sendRequestToOctoprint(String type, String command, const c
       buffer = "";
     }
   }
-  if (!bodySize) {
-    if (_debug) Serial.println("Header 'Content-Length' not found");
-    closeClient();
-    return "";
-  }
 
   if (_debug) Serial.println("Reading body");
-  for (buffer = ""; _client->available() && bodySize-- && OPAPI_RUN_TIMEOUT;)
+  for (buffer = ""; _client->connected() && _client->available() && bodySize-- && OPAPI_RUN_TIMEOUT;)
     buffer = buffer + (char)_client->read();
   if (_debug) Serial.println(buffer);
 
@@ -122,7 +112,6 @@ String OctoprintApi::sendRequestToOctoprint(String type, String command, const c
 
 String OctoprintApi::sendGetToOctoprint(String command) {
   if (_debug) Serial.println("OctoprintApi::sendGetToOctoprint() CALLED");
-
   return sendRequestToOctoprint("GET", command, NULL);
 }
 
@@ -296,7 +285,6 @@ String OctoprintApi::getOctoprintEndpointResults(String command) {
 }
 
 /** POST TIME
- *
  * **/
 String OctoprintApi::sendPostToOctoPrint(String command, const char *postData) {
   if (_debug) Serial.println("OctoprintApi::sendPostToOctoPrint() CALLED");
@@ -333,16 +321,16 @@ bool OctoprintApi::octoPrintConnectionFakeAck() {
  * Upon success, a status code of 204 No Content and an empty body is returned.
  * */
 bool OctoprintApi::octoPrintPrintHeadHome() {
-  //   {
-  //   "command": "home",
-  //   "axes": ["x", "y", "z"]
+  // {
+  // "command": "home",
+  // "axes": ["x", "y", "z"]
   // }
   sendPostToOctoPrint("/api/printer/printhead", "{\"command\": \"home\",\"axes\": [\"x\", \"y\"]}");
   return (httpStatusCode == 204);
 }
 
 bool OctoprintApi::octoPrintPrintHeadRelativeJog(double x, double y, double z, double f) {
-  //  {
+  // {
   // "command": "jog",
   // "x": 10,
   // "y": -5,
@@ -463,8 +451,7 @@ If SD support has been disabled in OctoPrint’s settings, a 404 Not Found is re
 Returns a 200 OK with an SD State Response in the body upon success.
 */
 bool OctoprintApi::octoPrintGetPrinterSD() {
-  String command  = "/api/printer/sd";
-  String response = sendGetToOctoprint(command);
+  String response = sendGetToOctoprint("/api/printer/sd");
 
   StaticJsonDocument<JSONDOCUMENT_SIZE> root;
   if (!deserializeJson(root, response)) {
@@ -481,17 +468,15 @@ Sends any command to the printer via the serial interface. Should be used with s
 If successful returns a 204 No Content and an empty body.
 */
 bool OctoprintApi::octoPrintPrinterCommand(const char *gcodeCommand) {
-  String command = "/api/printer/command";
   char postData[POSTDATA_SIZE];
 
   snprintf(postData, POSTDATA_SIZE, "{\"command\": \"%s\"}", gcodeCommand);
-  sendPostToOctoPrint(command, postData);
+  sendPostToOctoPrint("/api/printer/command", postData);
 
   return (httpStatusCode == 204);
 }
 
 /***** GENERAL FUNCTIONS *****/
-
 /**
  * Close the client
  * */
