@@ -66,7 +66,7 @@ String OctoprintApi::sendRequestToOctoprint(String type, String command, const c
   if (_debug) Serial.println("Request sent. Waiting for the answer.");
   start_waiting = millis();
   while (_client->connected() && !_client->available() && OPAPI_RUN_TIMEOUT)  // wait for a reply
-    delay(1);
+    delay(100);
   if (!_client->connected() || !_client->available()) {
     if (_debug) Serial.println("Timeout during waiting for a reply");
     closeClient();
