@@ -14,11 +14,14 @@
 #include <ArduinoJson.h>
 #include <Client.h>
 
-#define OPAPI_TIMEOUT       3000
-#define POSTDATA_SIZE       256
-#define POSTDATA_GCODE_SIZE 50
-#define JSONDOCUMENT_SIZE   1024
-#define USER_AGENT          "OctoPrintAPI/1.1.4 (Arduino)"
+#define OPAPI_TIMEOUT     3000  // 3s timetout
+#define OPAPI_RUN_TIMEOUT (millis() - start_waiting < OPAPI_TIMEOUT) && (start_waiting <= millis())
+
+#define POSTDATA_SIZE     128
+#define TEMPDATA_SIZE     24
+#define JSONDOCUMENT_SIZE 1024
+#define USER_AGENT        "OctoPrintAPI/1.1.4 (Arduino)"
+#define USER_AGENT_SIZE   64
 
 struct printerStatistics {
   String printerState;
@@ -81,12 +84,21 @@ struct printerBedCall {
   float printerBedTempTarget;
   long printerBedTempHistoryTimestamp;
   float printerBedTempHistoryActual;
+  float printerBedTempHistoryTarget;
+};
+struct printerChamberCall {
+  float printerChamberTempActual;
+  float printerChamberTempOffset;
+  float printerChamberTempTarget;
+  long printerChamberTempHistoryTimestamp;
+  float printerChamberTempHistoryActual;
+  float printerChamberTempHistoryTarget;
 };
 
 class OctoprintApi {
  public:
-  OctoprintApi(Client &client, IPAddress octoPrintIp, int octoPrintPort, String apiKey);
-  OctoprintApi(Client &client, char *octoPrintUrl, int octoPrintPort, String apiKey);
+  OctoprintApi(Client &client, IPAddress octoPrintIp, uint16_t octoPrintPort, String apiKey);
+  OctoprintApi(Client &client, char *octoPrintUrl, uint16_t octoPrintPort, String apiKey);
   String sendGetToOctoprint(String command);
   String getOctoprintEndpointResults(String command);
   bool getPrinterStatistics();
@@ -95,9 +107,9 @@ class OctoprintApi {
   octoprintVersion octoprintVer;
   bool getPrintJob();
   printJobCall printJob;
-  bool _debug          = false;
-  int httpStatusCode   = 0;
-  String httpErrorBody = "";
+  bool _debug             = false;
+  uint16_t httpStatusCode = 0;
+
   String sendPostToOctoPrint(String command, const char *postData);
   bool octoPrintConnectionDisconnect();
   bool octoPrintConnectionAutoConnect();
@@ -108,6 +120,9 @@ class OctoprintApi {
   bool octoPrintSetBedTemperature(uint16_t t);
   bool octoPrintSetTool0Temperature(uint16_t t);
   bool octoPrintSetTool1Temperature(uint16_t t);
+  bool octoPrintSetTemperatures(uint16_t tool0 = 0, uint16_t tool1 = 0, uint16_t bed = 0);
+  bool octoPrintCoolDown() { return octoPrintSetTemperatures(); };
+  bool octoPrintSetChamberTemperature(uint16_t t);
 
   bool octoPrintGetPrinterSD();
   bool octoPrintPrinterSDInit();
@@ -116,6 +131,9 @@ class OctoprintApi {
 
   bool octoPrintGetPrinterBed();
   printerBedCall printerBed;
+  
+  bool octoPrintGetPrinterChamber();
+  printerChamberCall printerChamber;
 
   bool octoPrintJobStart();
   bool octoPrintJobCancel();
@@ -125,7 +143,7 @@ class OctoprintApi {
   bool octoPrintJobResume();
   bool octoPrintFileSelect(String &path);
 
-  bool octoPrintPrinterCommand(char *gcodeCommand);
+  bool octoPrintPrinterCommand(const char *gcodeCommand);
 
  private:
   Client *_client;
@@ -133,11 +151,13 @@ class OctoprintApi {
   IPAddress _octoPrintIp;
   bool _usingIpAddress;
   char *_octoPrintUrl;
-  int _octoPrintPort;
-  const int maxMessageLength = 1000;
+  uint16_t _octoPrintPort;
+  char _useragent[USER_AGENT_SIZE];
+
   void closeClient();
-  int extractHttpCode(String statusCode, String body);
-  String sendRequestToOctoprint(String type, String command, const char *data);
+  void sendHeader(const String type, const String command, const char *data);
+  int extractHttpCode(const String statusCode);
+  String sendRequestToOctoprint(const String type, const String command, const char *data);
 };
 
 #endif
