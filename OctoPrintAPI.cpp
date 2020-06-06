@@ -367,43 +367,51 @@ bool OctoprintApi::octoPrintPrintHeadRelativeJog(double x, double y, double z, d
 
 bool OctoprintApi::octoPrintExtrude(double amount) {
   char postData[POSTDATA_SIZE];
+  
   snprintf(postData, POSTDATA_SIZE, "{ \"command\": \"extrude\", \"amount\": %.2f }", amount);
-
   sendPostToOctoPrint("/api/printer/tool", postData);
   return (httpStatusCode == 204);
 }
 
 bool OctoprintApi::octoPrintSetBedTemperature(uint16_t t) {
   char postData[POSTDATA_SIZE];
-  snprintf(postData, POSTDATA_SIZE, "{ \"command\": \"target\", \"target\": %d }", t);
 
+  snprintf(postData, POSTDATA_SIZE, "{ \"command\": \"target\", \"target\": %d }", t);
   sendPostToOctoPrint("/api/printer/bed", postData);
   return (httpStatusCode == 204);
 }
 
 bool OctoprintApi::octoPrintSetTool0Temperature(uint16_t t) {
   char postData[POSTDATA_SIZE];
-  snprintf(postData, POSTDATA_SIZE, "{ \"command\": \"target\", \"targets\": { \"tool0\": %d } }", t);
 
+  snprintf(postData, POSTDATA_SIZE, "{ \"command\": \"target\", \"targets\": { \"tool0\": %d } }", t);
   sendPostToOctoPrint("/api/printer/tool", postData);
   return (httpStatusCode == 204);
 }
 
 bool OctoprintApi::octoPrintSetTool1Temperature(uint16_t t) {
   char postData[POSTDATA_SIZE];
-  snprintf(postData, POSTDATA_SIZE, "{ \"command\": \"target\", \"targets\": { \"tool1\": %d } }", t);
 
+  snprintf(postData, POSTDATA_SIZE, "{ \"command\": \"target\", \"targets\": { \"tool1\": %d } }", t);
   sendPostToOctoPrint("/api/printer/tool", postData);
   return (httpStatusCode == 204);
 }
 
 bool OctoprintApi::octoPrintSetTemperatures(uint16_t tool0, uint16_t tool1, uint16_t bed) {
   char postData[POSTDATA_SIZE];
+
   snprintf(postData, POSTDATA_SIZE,
            "{ \"command\": \"target\", \"targets\": { \"tool0\": %d, \"tool1\": %d, \"bed\": %d } }",
            tool0, tool1, bed);
-
   sendPostToOctoPrint("/api/printer/tool", postData);
+  return (httpStatusCode == 204);
+}
+
+bool OctoprintApi::octoPrintSetChamberTemperature(uint16_t t) {
+  char postData[POSTDATA_SIZE];
+
+  snprintf(postData, POSTDATA_SIZE, "{ \"command\": \"target\", \"target\": %d }", t);
+  sendPostToOctoPrint("/api/printer/chamber", postData);
   return (httpStatusCode == 204);
 }
 
@@ -429,6 +437,35 @@ bool OctoprintApi::octoPrintGetPrinterBed() {
     if (root.containsKey("history")) {
       printerBed.printerBedTempHistoryTimestamp = root["history"][0]["time"];
       printerBed.printerBedTempHistoryActual    = root["history"][0]["bed"]["actual"];
+      printerBed.printerBedTempHistoryTarget    = root["history"][0]["bed"]["target"];
+    }
+    return true;
+  }
+  return false;
+}
+/***** PRINT CHAMBER *****/
+/** octoPrintGetPrinterChamber()
+ * https://docs.octoprint.org/en/master/api/printer.html#retrieve-the-current-chamber-state
+ * Retrieves the current temperature data (actual, target and offset) plus optionally a (limited) history (actual, target, timestamp) for the printer’s heated bed.
+ * It’s also possible to retrieve the temperature history by supplying the history query parameter set to true.
+ * The amount of returned history data points can be limited using the limit query parameter.
+ * Returns a 200 OK with a Temperature Response in the body upon success.
+ * If no heated chamber is configured for the currently selected printer profile, the resource will return an 409 Conflict.
+ * */
+bool OctoprintApi::octoPrintGetPrinterChamber() {
+  String response = sendGetToOctoprint("/api/printer/chamber?history=true&limit=2");
+
+  StaticJsonDocument<JSONDOCUMENT_SIZE> root;
+  if (!deserializeJson(root, response)) {
+    if (root.containsKey("chamber")) {
+      printerChamber.printerChamberTempActual = root["chamber"]["actual"];
+      printerChamber.printerChamberTempOffset = root["chamber"]["offset"];
+      printerChamber.printerChamberTempTarget = root["chamber"]["target"];
+    }
+    if (root.containsKey("history")) {
+      printerChamber.printerChamberTempHistoryTimestamp = root["history"][0]["time"];
+      printerChamber.printerChamberTempHistoryActual    = root["history"][0]["chamber"]["actual"];
+      printerChamber.printerChamberTempHistoryTarget    = root["history"][0]["chamber"]["target"];
     }
     return true;
   }

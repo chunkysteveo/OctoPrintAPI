@@ -84,6 +84,15 @@ struct printerBedCall {
   float printerBedTempTarget;
   long printerBedTempHistoryTimestamp;
   float printerBedTempHistoryActual;
+  float printerBedTempHistoryTarget;
+};
+struct printerChamberCall {
+  float printerChamberTempActual;
+  float printerChamberTempOffset;
+  float printerChamberTempTarget;
+  long printerChamberTempHistoryTimestamp;
+  float printerChamberTempHistoryActual;
+  float printerChamberTempHistoryTarget;
 };
 
 class OctoprintApi {
@@ -113,6 +122,7 @@ class OctoprintApi {
   bool octoPrintSetTool1Temperature(uint16_t t);
   bool octoPrintSetTemperatures(uint16_t tool0 = 0, uint16_t tool1 = 0, uint16_t bed = 0);
   bool octoPrintCoolDown() { return octoPrintSetTemperatures(); };
+  bool octoPrintSetChamberTemperature(uint16_t t);
 
   bool octoPrintGetPrinterSD();
   bool octoPrintPrinterSDInit();
@@ -121,6 +131,9 @@ class OctoprintApi {
 
   bool octoPrintGetPrinterBed();
   printerBedCall printerBed;
+  
+  bool octoPrintGetPrinterChamber();
+  printerChamberCall printerChamber;
 
   bool octoPrintJobStart();
   bool octoPrintJobCancel();
