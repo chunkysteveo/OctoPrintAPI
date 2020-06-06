@@ -397,6 +397,16 @@ bool OctoprintApi::octoPrintSetTool1Temperature(uint16_t t) {
   return (httpStatusCode == 204);
 }
 
+bool OctoprintApi::octoPrintSetTemperatures(uint16_t tool0, uint16_t tool1, uint16_t bed) {
+  char postData[POSTDATA_SIZE];
+  snprintf(postData, POSTDATA_SIZE,
+           "{ \"command\": \"target\", \"targets\": { \"tool0\": %d, \"tool1\": %d, \"bed\": %d } }",
+           tool0, tool1, bed);
+
+  sendPostToOctoPrint("/api/printer/tool", postData);
+  return (httpStatusCode == 204);
+}
+
 /***** PRINT BED *****/
 /** octoPrintGetPrinterBed()
  * http://docs.octoprint.org/en/master/api/printer.html#retrieve-the-current-bed-state

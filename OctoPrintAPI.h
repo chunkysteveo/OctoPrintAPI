@@ -111,6 +111,8 @@ class OctoprintApi {
   bool octoPrintSetBedTemperature(uint16_t t);
   bool octoPrintSetTool0Temperature(uint16_t t);
   bool octoPrintSetTool1Temperature(uint16_t t);
+  bool octoPrintSetTemperatures(uint16_t tool0 = 0, uint16_t tool1 = 0, uint16_t bed = 0);
+  bool octoPrintCoolDown() { return octoPrintSetTemperatures(); };
 
   bool octoPrintGetPrinterSD();
   bool octoPrintPrinterSDInit();
