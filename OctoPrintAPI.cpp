@@ -288,6 +288,27 @@ bool OctoprintApi::octoPrintFileSelect(String &path) {
 
 //bool OctoprintApi::octoPrintJobPause(String actionCommand){}
 
+/***** SYSTEM COMMANDS *****/
+/**
+ * https://docs.octoprint.org/en/master/api/system.html
+ * All system operations require the SYSTEM permission.
+ * action: shutdown, reboot, restart 
+ * */
+bool OctoprintApi::octoPrintCoreShutdown() {
+  sendPostToOctoPrint("/api/system/commands/core/shutdown","");
+  return (httpStatusCode == 204);
+}
+
+bool OctoprintApi::octoPrintCoreReboot() {
+  sendPostToOctoPrint("/api/system/commands/core/reboot","");
+  return (httpStatusCode == 204);
+}
+
+bool OctoprintApi::octoPrintCoreRestart() {
+  sendPostToOctoPrint("/api/system/commands/core/restart","");
+  return (httpStatusCode == 204);
+}
+
 /** getPrintJob
  * http://docs.octoprint.org/en/master/api/job.html#retrieve-information-about-the-current-job
  * Retrieve information about the current job (if there is one).
