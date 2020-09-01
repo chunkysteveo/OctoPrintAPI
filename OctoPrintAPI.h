@@ -125,6 +125,10 @@ class OctoprintApi {
   bool octoPrintJobResume();
   bool octoPrintFileSelect(String &path);
 
+  bool octoPrintCoreShutdown();
+  bool octoPrintCoreReboot();
+  bool octoPrintCoreRestart();
+
   bool octoPrintPrinterCommand(char *gcodeCommand);
 
  private:
