@@ -110,7 +110,7 @@ void loop() {
         Serial.println(api.printerStats.printerStatesdReady);
         Serial.println("------------------------");
         Serial.println();
-        Serial.println("------Termperatures-----");
+        Serial.println("------Temperatures-----");
         Serial.print("Printer Temp - Tool0 (°C):  ");
         Serial.println(api.printerStats.printerTool0TempActual);
         Serial.print("Printer State - Tool1 (°C):  ");
