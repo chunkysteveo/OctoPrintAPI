@@ -85,8 +85,11 @@ struct printerBedCall {
 
 class OctoprintApi {
  public:
+  OctoprintApi(void);
   OctoprintApi(Client &client, IPAddress octoPrintIp, int octoPrintPort, String apiKey);
   OctoprintApi(Client &client, char *octoPrintUrl, int octoPrintPort, String apiKey);
+  void init(Client &client, char *octoPrintUrl, int octoPrintPort, String apiKey);
+  void init(Client &client, IPAddress octoPrintIp, int octoPrintPort, String apiKey);
   String sendGetToOctoprint(String command);
   String getOctoprintEndpointResults(String command);
   bool getPrinterStatistics();
