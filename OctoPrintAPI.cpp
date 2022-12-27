@@ -328,6 +328,7 @@ bool OctoprintApi::getPrintJob() {
       printJob.jobFileName   = (const char *)(root["job"]["file"]["name"] | "");
       printJob.jobFileOrigin = (const char *)(root["job"]["file"]["origin"] | "");
       printJob.jobFileSize   = root["job"]["file"]["size"];
+	  printJob.jobFilePath = (const char *)(root["job"]["file"]["path"] | "");
 
       printJob.jobFilamentTool0Length = root["job"]["filament"]["tool0"]["length"] | 0;
       printJob.jobFilamentTool0Volume = root["job"]["filament"]["tool0"]["volume"] | 0.0;

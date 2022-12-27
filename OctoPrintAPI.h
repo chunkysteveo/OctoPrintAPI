@@ -62,6 +62,7 @@ struct printJobCall {
   String jobFileName;
   String jobFileOrigin;
   long jobFileSize;
+  String jobFilePath;
 
   float progressCompletion;
   long progressFilepos;
