@@ -153,6 +153,7 @@ String OctoprintApi::sendRequestToOctoprint(String type, String command, const c
     Serial.println(httpCode);
   }
   httpStatusCode = httpCode;
+  if(httpStatusCode <= 199 || httpStatusCode >= 300){httpErrorBody = body;} //account for any error codes. Client can decide what to do with Body Contents as a fall back.
 
   return body;
 }
