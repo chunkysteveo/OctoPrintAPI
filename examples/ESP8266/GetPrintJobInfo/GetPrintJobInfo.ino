@@ -35,6 +35,7 @@ const int octoprint_httpPort = 80;  //If you are connecting through a router thi
 String octoprint_apikey = "API_KEY"; //See top of file or GIT Readme about getting API key
 
 // Use one of the following:
+//OctoprintApi api; //Be sure to call init in setup.
 OctoprintApi api(client, ip, octoprint_httpPort, octoprint_apikey);               //If using IP address
 // OctoprintApi api(client, octoprint_host, octoprint_httpPort, octoprint_apikey);//If using hostname. Comment out one or the other.
 
@@ -67,6 +68,12 @@ void setup () {
   Serial.println("WiFi connected");  
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP()); 
+  
+  //Use one of these Only if you have not initialized the api object above with parameters"
+  //api.init(client, ip, octoprint_httpPort, octoprint_apikey);               //If using IP address
+  //api.init(client, octoprint_host, octoprint_httpPort, octoprint_apikey);//If using hostname. Comment out one or the other.
+  
+  
 }
 
 
@@ -89,6 +96,8 @@ void loop() {
         Serial.println(api.printJob.jobFileOrigin);
         Serial.print("jobFileSize (bytes) long:\t\t");
         Serial.println(api.printJob.jobFileSize);
+        Serial.print("jobFilePath:\t\t");
+        Serial.println(api.printJob.jobFilePath);
         Serial.print("jobFilamentTool0Length (mm) long:\t");
         Serial.println(api.printJob.jobFilamentTool0Length);
         Serial.print("jobFilamentTool0Volume (cm³) float:\t");

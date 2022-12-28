@@ -45,6 +45,8 @@ octoPrintFileSelect	KEYWORD2
 octoPrintCoreShutdown	KEYWORD2
 octoPrintCoreReboot	KEYWORD2
 octoPrintCoreRestart	KEYWORD2
+init	KEYWORD2
+
 
 #######################################
 # Instances (KEYWORD2)

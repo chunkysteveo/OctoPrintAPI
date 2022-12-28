@@ -42,8 +42,9 @@ String printerTarget;
 String payload;
 
 // Use one of the following:
-OctoprintApi api(client, ip, octoprint_httpPort, octoprint_apikey);               //If using IP address
-// OctoprintApi api(client, octoprint_host, octoprint_httpPort, octoprint_apikey);//If using hostname. Comment out one or the other.
+OctoprintApi api; //Be sure to call init in setup. 
+//OctoprintApi api(client, ip, octoprint_httpPort, octoprint_apikey);               //If using IP address
+//OctoprintApi api(client, octoprint_host, octoprint_httpPort, octoprint_apikey);//If using hostname. Comment out one or the other.
 
 unsigned long api_mtbs = 60000; //mean time between api requests (60 seconds)
 unsigned long api_lasttime = 0;   //last time api request has been done
@@ -74,6 +75,11 @@ void setup () {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+
+  //Use one of these Only if you have not initialized the api object above with parameters"
+  api.init(client, ip, octoprint_httpPort, octoprint_apikey);               //If using IP address
+  //api.init(client, octoprint_host, octoprint_httpPort, octoprint_apikey);//If using hostname. Comment out one or the other.
+  
 }
 
 
