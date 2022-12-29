@@ -419,7 +419,14 @@ bool OctoprintApi::octoPrintPrintHeadHome() {
   return (httpStatusCode == 204);
 }
 
+bool OctoprintApi::octoPrintPrintHeadAbsoluteJog(double x, double y, double z, double f) {
+	return octoPrintPrintHeadJog(x,y,z,f,true);
+}
 bool OctoprintApi::octoPrintPrintHeadRelativeJog(double x, double y, double z, double f) {
+	return octoPrintPrintHeadJog(x,y,z,f,false);
+}
+	
+bool OctoprintApi::octoPrintPrintHeadJog(double x, double y, double z, double f,bool absolute) {
   //  {
   // "command": "jog",
   // "x": 10,
@@ -449,7 +456,9 @@ bool OctoprintApi::octoPrintPrintHeadRelativeJog(double x, double y, double z, d
     snprintf(tmp, 128, ", \"speed\": %f", f);
     strcat(postData, tmp);
   }
-  strcat(postData, ", \"absolute\": false");
+  if(absolute){strcat(postData, ", \"absolute\": true");}
+  else{strcat(postData, ", \"absolute\": false");}
+	
   strcat(postData, " }");
   if (_debug)
     Serial.println(postData);

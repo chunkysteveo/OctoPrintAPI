@@ -108,6 +108,8 @@ class OctoprintApi {
   bool octoPrintConnectionFakeAck();
   bool octoPrintPrintHeadHome();
   bool octoPrintPrintHeadRelativeJog(double x, double y, double z, double f);
+  bool octoPrintPrintHeadAbsoluteJog(double x, double y, double z, double f);
+  bool octoPrintPrintHeadJog(double x, double y, double z, double f,bool absolute);
   bool octoPrintExtrude(double amount);
   bool octoPrintSetBedTemperature(uint16_t t);
   bool octoPrintSetTool0Temperature(uint16_t t);
