@@ -11,21 +11,36 @@
 
 #include "Arduino.h"
 
+OctoprintApi::OctoprintApi(void){
+	if (_debug)
+		Serial.println("Be sure to Call init to setup and start the OctoprintApi instance");
+	
+}
+
 /** OctoprintApi()
  * IP address version of the client connect function
  * */
 OctoprintApi::OctoprintApi(Client &client, IPAddress octoPrintIp, int octoPrintPort, String apiKey) {
+  init(client, octoPrintIp, octoPrintPort, apiKey);
+}
+
+void OctoprintApi::init(Client &client, IPAddress octoPrintIp, int octoPrintPort, String apiKey) {
   _client         = &client;
   _apiKey         = apiKey;
   _octoPrintIp    = octoPrintIp;
   _octoPrintPort  = octoPrintPort;
   _usingIpAddress = true;
-}
+} 
 
 /** OctoprintApi()
  * Hostname version of the client connect function
  * */
+ 
 OctoprintApi::OctoprintApi(Client &client, char *octoPrintUrl, int octoPrintPort, String apiKey) {
+	init(client, octoPrintUrl,octoPrintPort,apiKey);
+}
+
+void OctoprintApi::init(Client &client, char *octoPrintUrl, int octoPrintPort, String apiKey) {
   _client         = &client;
   _apiKey         = apiKey;
   _octoPrintUrl   = octoPrintUrl;

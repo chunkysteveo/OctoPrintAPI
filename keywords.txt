@@ -35,6 +35,7 @@ octoPrintPrinterCommand	KEYWORD2
 octoPrintJobPause	KEYWORD2
 octoPrintJobResume	KEYWORD2
 octoPrintFileSelect	KEYWORD2
+init	KEYWORD2
 
 #######################################
 # Instances (KEYWORD2)
