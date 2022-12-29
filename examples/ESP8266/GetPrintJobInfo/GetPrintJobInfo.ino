@@ -96,6 +96,8 @@ void loop() {
         Serial.println(api.printJob.jobFileOrigin);
         Serial.print("jobFileSize (bytes) long:\t\t");
         Serial.println(api.printJob.jobFileSize);
+        Serial.print("jobFilePath:\t\t");
+        Serial.println(api.printJob.jobFilePath);
         Serial.print("jobFilamentTool0Length (mm) long:\t");
         Serial.println(api.printJob.jobFilamentTool0Length);
         Serial.print("jobFilamentTool0Volume (cm³) float:\t");
