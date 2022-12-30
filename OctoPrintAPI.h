@@ -18,7 +18,7 @@
 #define POSTDATA_SIZE       256
 #define POSTDATA_GCODE_SIZE 50
 #define JSONDOCUMENT_SIZE   1024
-#define USER_AGENT          "OctoPrintAPI/1.1.5 (Arduino)"
+#define USER_AGENT          "OctoPrintAPI/1.1.6 (Arduino)"
 
 struct printerStatistics {
   String printerState;
