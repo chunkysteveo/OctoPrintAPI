@@ -80,8 +80,10 @@ Uses the getPrintJob() function of the class to get the current print job and re
 ## Authors
 
 * **Stephen Ludgate** - *Initial work* - [chunkysteveo](https://github.com/chunkysteveo)
-* **Stephen Ludgate** - *Contributor* - [sidddy](https://github.com/sidddy)
-* **Stephen Ludgate** - *Contributor* - [anfichtn](https://github.com/anfichtn)
+* **sidddy** - *Contributor* - [sidddy](https://github.com/sidddy)
+* **anfichtn** - *Contributor* - [anfichtn](https://github.com/anfichtn)
+* **Lars Simonsen** - *Contributor* - [LarsSimonsen](https://github.com/LarsSimonsen)
+* **JCsGotThis** - *Contributor* - [jcassel](https://github.com/jcassel)
 
 ## License
 
@@ -89,6 +91,8 @@ See the [LICENSE.md](LICENSE.md) file for details
 
 
 ## Release History
+* 1.1.6
+    * Bumping the version up including all the latest and greatest PR's from [JCsGotThis](https://github.com/jcassel)!
 * 1.1.5
     * Bumping the version up to see if it helps with PlatformIO including the latest files.!
 * 1.1.4
