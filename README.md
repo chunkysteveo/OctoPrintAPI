@@ -65,7 +65,7 @@ Include OctoPrint API in your project:
 ### HelloWorldSerial
 This is the first sketch to try out. Enter your WiFi credentials, your OctoPrint network info, API key, compile and upload. Open the serial monitor and you should start to see printer information coming back. Works on both ESP8266 and ESP32 boards.
 
-### GetPrintJObInfo
+### GetPrintJobInfo
 Uses the getPrintJob() function of the class to get the current print job and returns most of the useful API variables. Gives a "real world" example of using the variables to print more human readable info once collected from the API.
 
 
@@ -92,7 +92,7 @@ See the [LICENSE.md](LICENSE.md) file for details
 
 ## Release History
 * 1.1.6
-    * Bumping the version up including all the latest and greatest PR's from [JCsGotThis](https://github.com/jcassel)!
+    * Bumping the version up including all the latest and greatest PR's, including from [JCsGotThis](https://github.com/jcassel)!
 * 1.1.5
     * Bumping the version up to see if it helps with PlatformIO including the latest files.!
 * 1.1.4
